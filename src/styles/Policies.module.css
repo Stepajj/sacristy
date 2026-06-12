@@ -1,0 +1,46 @@
+.evPolicy {
+  margin-top: 32px;
+  padding: 20px 0 16px;
+  border: none;
+}
+.evPolicyFlush {
+  margin-top: 0;
+  padding-top: 0;
+}
+.evPolicyTitle {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 24px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: rgba(220, 220, 220, .55);
+  margin-bottom: 32px;
+  padding-bottom: 0;
+  border: none;
+}
+.evPolicyBlock {
+  margin-bottom: 36px;
+}
+.evPolicyLabel {
+  font-size: 13px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: rgba(220, 220, 220, .95);
+  margin-bottom: 14px;
+  font-weight: 600;
+}
+.evPolicyBlock p {
+  font-size: 13px;
+  line-height: 2.2;
+  color: rgba(220, 220, 220, .62);
+  margin-bottom: 12px;
+  letter-spacing: .02em;
+  max-width: 540px;
+}
+.evPolicySign {
+  color: rgba(220, 220, 220, .95) !important;
+  font-size: 13px !important;
+  letter-spacing: .18em !important;
+  margin-top: 20px !important;
+  text-transform: uppercase !important;
+  font-weight: 600 !important;
+}

@@ -1,0 +1,126 @@
+.archiveMeta {
+  font-size: 8px;
+  letter-spacing: .25em;
+  text-transform: uppercase;
+  color: rgba(220, 220, 220, .25);
+  margin-bottom: 6px;
+  line-height: 1.7;
+}
+.archiveFilters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 24px;
+}
+.archiveFilter {
+  font-size: 9px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  padding: 6px 12px;
+  border: 1px solid rgba(220, 220, 220, .15);
+  color: rgba(220, 220, 220, .4);
+  background: none;
+  cursor: pointer;
+  transition: color .15s, border-color .15s;
+  font-family: inherit;
+}
+.archiveFilter.active,
+.archiveFilter:hover {
+  color: var(--white);
+  border-color: rgba(220, 220, 220, .5);
+}
+.archiveArtist {
+  display: block;
+  font-size: 13px;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: rgba(220, 220, 220, .7);
+  padding: 8px 0;
+  transition: color .15s;
+  text-decoration: none;
+}
+a.archiveArtist:hover {
+  color: #fff;
+}
+
+.archive .poster {
+  filter: grayscale(1);
+  opacity: .82;
+  transition: filter .4s ease, opacity .4s ease;
+}
+.archive .posterCard:hover .poster {
+  filter: grayscale(0);
+  opacity: 1;
+}
+
+.archiveGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: 22px;
+  row-gap: 36px;
+}
+
+.seeMoreWrap {
+  margin-top: 18px;
+  display: none;
+  justify-content: center;
+}
+.seeMoreWrap.isVisible {
+  display: flex;
+}
+.seeMore {
+  min-height: 42px;
+  padding: 0 20px;
+  border: 1px solid var(--line);
+  color: var(--white);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-size: 10px;
+}
+.seeMore:hover {
+  border-color: rgba(220, 220, 220, .22);
+}
+
+@media (max-width: 768px) {
+  .archiveGrid {
+    display: flex !important;
+    flex-direction: column;
+    gap: 0;
+    border-bottom: 1px solid rgba(220, 220, 220, .07);
+  }
+
+  .archive .poster {
+    filter: none !important;
+    opacity: 1 !important;
+    transition: none;
+  }
+
+  .seeMoreWrap {
+    padding: 0;
+    margin-top: 0;
+    width: 100%;
+  }
+  .seeMore {
+    min-height: 44px;
+    font-size: 9px;
+    width: 100%;
+    letter-spacing: .18em;
+    margin-top: 0;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-bottom: 1px solid rgba(220, 220, 220, .07);
+    border-radius: 0;
+    background: #0d0d0d;
+    color: rgba(220, 220, 220, .45);
+  }
+  .seeMore:active {
+    color: #b60000;
+    border-color: rgba(182, 0, 0, .6);
+  }
+}
+
+@media (max-width: 380px) {
+  .archiveGrid .posterCard .posterWrap { width: 84px; height: 106px; }
+  .archiveGrid .posterCard .meta { min-height: 106px; }
+}

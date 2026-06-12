@@ -1,0 +1,61 @@
+.cookieBanner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  background: #0a0a0a;
+  border-top: 1px solid rgba(255, 255, 255, .1);
+  padding: 14px 24px;
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+.cookieBannerVisible {
+  display: flex;
+}
+.cookieBannerText {
+  font-size: 9px;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, .45);
+  margin: 0;
+  line-height: 1.6;
+}
+.cookieBannerText a {
+  color: rgba(255, 255, 255, .3);
+  text-decoration: underline;
+}
+.cookieBannerActions {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.cookieBtn {
+  font-size: 9px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  padding: 8px 16px;
+  transition: color .2s;
+  cursor: pointer;
+  font-family: inherit;
+}
+.cookieBtnDecline {
+  color: rgba(255, 255, 255, .35);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, .12);
+}
+.cookieBtnAccept {
+  color: #fff;
+  background: var(--red);
+  border: none;
+  padding: 8px 20px;
+}
+
+@media (max-width: 768px) {
+  .cookieBanner {
+    bottom: 70px !important;
+    bottom: calc(70px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}

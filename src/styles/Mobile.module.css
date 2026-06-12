@@ -1,0 +1,179 @@
+.mobHeader {
+  display: none;
+  position: sticky;
+  top: 0;
+  z-index: 900;
+  background: #0a0a0a;
+  border-bottom: 1px solid rgba(220, 220, 220, .07);
+  height: 60px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+}
+.mobHeaderBrand {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  height: 100%;
+}
+.mobHeaderLogo {
+  height: 24px;
+  width: auto;
+}
+.mobMenuBtn {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: rgba(220, 220, 220, .55);
+  border: 1px solid rgba(220, 220, 220, .16);
+  padding: 0 14px;
+  height: 36px;
+}
+
+.mobBar {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 900;
+  background: #080808;
+  border-top: 1px solid rgba(220, 220, 220, .07);
+  height: calc(49px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  box-sizing: border-box;
+  align-items: stretch;
+}
+.mobBarItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 8px;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  color: rgba(220, 220, 220, .32);
+  border-right: 1px solid rgba(220, 220, 220, .06);
+}
+.mobBarItem:last-child {
+  border-right: none;
+}
+.mobBarItemActive {
+  color: rgba(220, 220, 220, .5);
+}
+.mobBarScIcon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  filter: invert(1);
+  opacity: .32;
+}
+
+.mobHeroCta {
+  display: none;
+  flex-direction: row;
+  gap: 8px;
+  width: 100%;
+  justify-content: center;
+}
+.mobHeroBtn {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  padding: 0 13px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(220, 220, 220, .18);
+  color: rgba(220, 220, 220, .6);
+}
+.mobHeroBtnSolid {
+  background: #b60000;
+  border-color: transparent;
+  color: #fff;
+}
+.mobHeroBtnSolid:active {
+  background: #8a0000;
+  border-color: transparent;
+}
+
+.mobOverlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 950;
+  background: #080808;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+}
+.mobOverlay.open {
+  display: flex;
+}
+.mobOverlayClose {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 72px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, .3);
+}
+.mobOverlay nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+.mobOverlay nav a {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 46px;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, .25);
+  padding: 5px 0;
+  line-height: 1.1;
+}
+.mobOverlay nav a.active {
+  color: #fff;
+}
+
+.mobOverlaySocial {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  padding: 22px 0 0;
+}
+.mobOverlaySocial a {
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, .28);
+}
+.mobOverlayTagline {
+  font-size: 8px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, .09);
+  padding: 18px 0 28px;
+}
+
+@media (max-width: 768px) {
+  .mobHeader  { display: flex !important; }
+  .mobBar     { display: flex !important; }
+  .mobHeroCta { display: flex !important; }
+}

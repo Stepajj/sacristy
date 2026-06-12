@@ -1,0 +1,293 @@
+.sectionTitle {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 30px;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  margin: 2px 0 16px;
+}
+
+.eventsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: 22px;
+  row-gap: 40px;
+  align-items: start;
+}
+
+.posterCard {
+  display: flex;
+  flex-direction: column;
+  color: var(--white);
+  min-width: 0;
+}
+
+.posterWrap {
+  background: var(--black-2);
+  border: 1px solid var(--line);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform .25s ease;
+  aspect-ratio: 4/5;
+}
+
+.poster {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #1a1a1a;
+  transition: transform .25s ease, filter .25s ease;
+}
+
+.posterCard:hover .posterWrap {
+  transform: scale(.88);
+}
+
+.ticketRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 40px;
+  border-bottom: 1px solid rgba(159, 159, 159, .25);
+  margin-top: 8px;
+  color: var(--soft);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  transition: color .2s, border-color .2s;
+}
+
+.posterCard:hover .ticketRow {
+  color: var(--gold);
+  border-bottom-color: var(--gold-line);
+}
+
+.ticketIcon {
+  width: 18px;
+  height: 11px;
+  border: 1.5px solid currentColor;
+  border-radius: 1px;
+  display: inline-block;
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.ticketIcon::before,
+.ticketIcon::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 4px;
+  background: var(--black);
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  box-sizing: border-box;
+}
+
+.ticketIcon::before { left: -1px; }
+.ticketIcon::after { right: -1px; }
+
+.meta {
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 21px;
+  letter-spacing: .4px;
+  line-height: .96;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.info {
+  font-size: 10px;
+  line-height: 1.7;
+  color: var(--white);
+}
+
+.pastEventsBlock {
+  margin: 34px 0 16px;
+}
+
+.archive .poster {
+  filter: grayscale(1);
+  opacity: .82;
+  transition: filter .4s ease, opacity .4s ease;
+}
+
+.archive:hover .poster {
+  filter: grayscale(0);
+  opacity: 1;
+}
+
+.seeMoreWrap {
+  margin-top: 18px;
+  display: none;
+  justify-content: center;
+}
+
+.seeMoreWrap.isVisible {
+  display: flex;
+}
+
+.seeMore {
+  min-height: 42px;
+  padding: 0 20px;
+  border: 1px solid var(--line);
+  color: var(--white);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-size: 10px;
+}
+
+.mobDjs {
+  display: none;
+}
+
+@media (max-width: 1180px) {
+  .eventsGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .sectionTitle {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    color: rgba(220, 220, 220, .3);
+    border-bottom: none;
+    padding: 0;
+    margin: 0 0 16px;
+    scroll-margin-top: 76px;
+  }
+
+  .eventsGrid {
+    display: flex !important;
+    padding: 0;
+    flex-direction: column;
+    gap: 36px;
+    margin: 0;
+    border-bottom: none;
+  }
+
+  .eventsGrid .posterCard {
+    display: grid !important;
+    grid-template-columns: 100px 1fr;
+    background: #0d0d0d;
+    border-top: 1px solid rgba(220, 220, 220, .07);
+    border-bottom: 1px solid rgba(220, 220, 220, .07);
+    gap: 10px;
+    width: 100%;
+    color: inherit;
+    padding-top: 10px;
+  }
+
+  .eventsGrid .posterCard .posterWrap {
+    width: 108px;
+    height: 135px;
+    aspect-ratio: unset;
+    border-right: 1px solid rgba(220, 220, 220, .07);
+    transform: none !important;
+    display: flex;
+  }
+
+  .eventsGrid .posterCard .ticketRow { display: none !important; }
+
+  .eventsGrid .posterCard .meta {
+    padding: 11px 12px;
+    min-height: 126px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 0;
+  }
+
+  .eventsGrid .posterCard .title {
+    font-size: 21px;
+    letter-spacing: .3px;
+    line-height: 1;
+    margin: 0 0 4px;
+    color: #dcdcdc;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .eventsGrid .posterCard .info {
+    font-size: 9px;
+    line-height: 1.65;
+    color: rgba(220, 220, 220, .38);
+    flex: 1;
+  }
+
+  .mobDjs {
+    display: none;
+    font-size: 8px;
+    letter-spacing: .1em;
+    color: rgba(220, 220, 220, .35);
+    margin-bottom: 6px;
+  }
+
+  .mobTicketBtn {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    margin-top: 8px;
+    padding: 0 10px;
+    height: 34px;
+    border: 1px solid rgba(220, 220, 220, .14);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: rgba(220,220,220,.45);
+    align-self: flex-start;
+  }
+
+  .archive .poster {
+    filter: none !important;
+    opacity: 1 !important;
+    transition: none;
+  }
+
+  .seeMoreWrap {
+    padding: 0;
+    margin: 10px 0 0;
+    width: auto;
+  }
+
+  .seeMore {
+    min-height: 42px;
+    padding: 0 20px;
+    border: 1px solid var(--line);
+    color: var(--white);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-size: 10px;
+    width: auto;
+    margin-top: 0;
+    background: transparent;
+  }
+
+  .pastEventsBlock {
+    margin: 36px 0 0;
+    padding: 0;
+  }
+}
+
+@media (max-width: 380px) {
+  .eventsGrid .posterCard .posterWrap { width: 108px; height: 135px; }
+  .eventsGrid .posterCard .meta { min-height: 126px; }
+  .eventsGrid .posterCard .title { font-size: 21px; }
+}

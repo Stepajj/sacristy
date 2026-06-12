@@ -1,0 +1,84 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 32px;
+  letter-spacing: 0.1em;
+}
+
+.createBtn {
+  background: #b60000;
+  color: #fff;
+  padding: 10px 20px;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  font-weight: 600;
+  border-radius: 2px;
+}
+
+.tableContainer {
+  background: #0a0a0a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th {
+  text-align: left;
+  padding: 16px 24px;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: rgba(255, 255, 255, 0.3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  text-transform: uppercase;
+}
+
+.table td {
+  padding: 16px 24px;
+  font-size: 13px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.dateCell {
+  color: rgba(255, 255, 255, 0.4);
+  white-space: nowrap;
+}
+
+.titleCell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.slug {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.statusActive {
+  color: #00C896;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.statusDraft {
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.actionsCell a {
+  color: #b60000;
+  font-weight: 600;
+  text-decoration: underline;
+}

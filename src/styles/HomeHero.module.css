@@ -1,0 +1,197 @@
+.left {
+  position: relative;
+  overflow: hidden;
+  border-right: 1px solid var(--line);
+  background: #000;
+}
+.left video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(.38) contrast(1.05);
+}
+.left::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,.22), rgba(0,0,0,.5));
+  pointer-events: none;
+}
+.leftInner {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  padding: 14px 20px 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.leftTopnav {
+  display: flex;
+  gap: 4px;
+  align-items: stretch;
+  height: 34px;
+}
+.leftTopnav a {
+  font-size: 11.5px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--white);
+  opacity: .7;
+  transition: opacity .15s, background .15s, color .15s;
+  padding: 0 10px;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+}
+.leftTopnav a:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, .06);
+}
+.leftTopnav a.active {
+  opacity: 1;
+  background: #fff;
+  color: #000;
+  font-weight: 600;
+}
+.leftTopnav a.navLogoLink.active {
+  background: transparent;
+}
+.leftTopnav a.navLogoLink.active .navLogoImg {
+  filter: brightness(0);
+}
+
+.logoWrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.logoWrap img {
+  max-width: 260px;
+  width: 32%;
+  min-width: 140px;
+  object-fit: contain;
+}
+
+.leftBottom {
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--white);
+  opacity: .8;
+}
+
+.mobileHeroBottom {
+  display: contents;
+}
+
+.residentMobileLogo,
+.residentMobileNav,
+.residentMobileBottom {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .left {
+    min-height: 56vh;
+  }
+}
+
+@media (max-width: 768px) {
+  .leftTopnav { display: none !important; }
+  .left {
+    min-height: 56vh;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid rgba(220, 220, 220, .06);
+  }
+  .leftInner {
+    height: auto;
+    min-height: 56vh;
+    padding: 18px 20px 20px;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .mobileHeroBottom {
+    position: absolute;
+    left: 20px;
+    right: 20px;
+    bottom: 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .left::after {
+    background: linear-gradient(to bottom, rgba(0,0,0,.52), rgba(0,0,0,.68));
+  }
+  .logoWrap {
+    flex: none;
+    padding: 0;
+    width: 100%;
+  }
+  .logoWrap img {
+    width: 40%;
+    min-width: 110px;
+    max-width: 160px;
+  }
+  .leftBottom {
+    font-size: 8px;
+    letter-spacing: .22em;
+    color: rgba(255, 255, 255, .32);
+    text-align: center;
+  }
+
+  .residentMobileLogo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+  .residentMobileLogo img {
+    width: 40%;
+    min-width: 110px;
+    max-width: 160px;
+    object-fit: contain;
+  }
+  .residentMobileNav {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    pointer-events: none;
+  }
+  .residentMobileNav a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 54px;
+    color: rgba(255, 255, 255, .55);
+    font-size: 35px;
+    line-height: 1;
+    pointer-events: auto;
+  }
+  .residentMobileBottom {
+    position: absolute;
+    left: 20px;
+    right: 20px;
+    bottom: 18px;
+    z-index: 4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 720px) {
+  .logoWrap img { width: 44%; }
+}

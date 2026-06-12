@@ -1,0 +1,68 @@
+.container {
+  display: flex;
+  height: 100vh;
+  min-height: 100vh;
+  overflow: hidden;
+  background: #000;
+  color: #fff;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.sidebar {
+  width: 240px;
+  flex: 0 0 240px;
+  height: 100vh;
+  background: #0a0a0a;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebarHeader {
+  padding: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  letter-spacing: 0.1em;
+  color: #fff;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  padding: 24px 0;
+  flex: 1;
+}
+
+.nav a {
+  padding: 12px 24px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
+  transition: all 0.2s;
+}
+
+.nav a:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+
+.navSpacer {
+  flex: 1;
+}
+
+.viewSite {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 12px;
+  opacity: 0.4;
+}
+
+.main {
+  flex: 1;
+  min-height: 0;
+  height: 100vh;
+  padding: 40px;
+  overflow-y: auto;
+}
