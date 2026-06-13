@@ -14,14 +14,26 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const [resident, settings] = await Promise.all([
     getResidentBySlug(slug),
-    getPublicSettings()
+    getPublicSettings(),
   ]);
-  
-  if (!resident) return { title: "Resident Not Found — SACRISTY" };
+
+  if (!resident) return { title: "Resident Not Found - SACRISTY" };
+
+  const description = resident.bio?.substring(0, 160)
+    || settings.seoDescription
+    || `Profile of ${resident.name}, SACRISTY Bangkok resident.`;
 
   return {
-    title: `${resident.name} — ${settings.seoTitle || 'SACRISTY Resident'}`,
-    description: resident.bio?.substring(0, 160) || settings.seoDescription || `Profile of ${resident.name}, SACRISTY Bangkok resident.`,
+    title: `${resident.name} \u2014 ${settings.seoTitle || "SACRISTY Resident"}`,
+    description,
+    alternates: { canonical: `/residents/${resident.slug}` },
+    openGraph: {
+      type: "profile",
+      url: `/residents/${resident.slug}`,
+      title: resident.name,
+      description,
+      images: resident.photo ? [{ url: resident.photo, alt: resident.name }] : undefined,
+    },
   };
 }
 
@@ -31,22 +43,35 @@ export default async function ResidentDetailPage({ params }: Props) {
     getResidentBySlug(slug),
     getResidents(),
     getUpcomingEvents(),
-    getPublicSettings()
+    getPublicSettings(),
   ]);
 
-  if (!residentData) {
-    notFound();
-  }
+  if (!residentData) notFound();
 
   const resident = normalizeResident(residentData);
   const residents = normalizeResidents(residentsData);
+  const residentJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: resident.name,
+    description: resident.bio || undefined,
+    image: resident.photo ? `https://sacristybangkok.com${resident.photo}` : undefined,
+    url: `https://sacristybangkok.com/residents/${resident.slug}`,
+    sameAs: [resident.instagramUrl, resident.soundcloudUrl, resident.raUrl].filter(Boolean),
+  };
 
   return (
-    <ResidentDetailPageClient 
-      resident={resident} 
-      residents={residents}
-      upcomingEvents={upcomingEvents} 
-      settings={settings}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(residentJsonLd) }}
+      />
+      <ResidentDetailPageClient
+        resident={resident}
+        residents={residents}
+        upcomingEvents={upcomingEvents}
+        settings={settings}
+      />
+    </>
   );
 }

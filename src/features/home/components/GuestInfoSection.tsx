@@ -6,7 +6,11 @@ interface GuestInfoSectionProps {
 
 export const GuestInfoSection = ({ flush = false }: GuestInfoSectionProps) => (
   <div className={`${styles.evPolicy} ${flush ? styles.evPolicyFlush : ""}`}>
-    <div className={styles.evPolicyTitle}>Guest Info & House Rules</div>
+    {flush ? (
+      <h1 className={styles.evPolicyTitle}>Guest Info & House Rules</h1>
+    ) : (
+      <h2 className={styles.evPolicyTitle}>Guest Info & House Rules</h2>
+    )}
     <div className={styles.evPolicyBlock}>
       <div className={styles.evPolicyLabel}>Timetable</div>
       <p>We do not publish the artist timetable online. Set times will be available at the entrance when you arrive at the event.</p>

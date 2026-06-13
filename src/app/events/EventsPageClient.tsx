@@ -66,15 +66,22 @@ export function EventsPageClient({ upcomingEvents, pastEvents, settings }: Event
       onSignup={handleSignup}
       settings={settings}
     >
-      <h2 className={compStyles.sectionTitle}>
+      <h1 className={compStyles.sectionTitle}>
         <span className="desk-label">Upcoming Sacristy Bangkok Events</span>
         <span className="mob-label">Upcoming Events</span>
-      </h2>
+      </h1>
       <div className={`${styles.eventsList} ${styles.eventsUpcomingList}`}>
         {upcomingEvents.length > 0 ? upcomingEvents.map(ev => (
           <div key={ev.id} className={styles.evRow} onClick={() => router.push(`/events/${ev.slug}`)}>
             <div className={styles.evThumbWrap}>
-              <Image src={ev.posterUrl || '/video-poster.jpg'} alt={ev.title} width={220} height={275} className={styles.evThumb} />
+              <Image
+                src={ev.posterUrl || '/video-poster.jpg'}
+                alt={ev.title}
+                width={220}
+                height={275}
+                sizes="(max-width: 768px) 77px, 220px"
+                className={styles.evThumb}
+              />
             </div>
             <div className={styles.evInfo}>
               <div className={styles.evTitle}>{ev.displayTitle || ev.title}</div>
@@ -99,7 +106,14 @@ export function EventsPageClient({ upcomingEvents, pastEvents, settings }: Event
         {pastEvents.slice(0, visiblePastCount).map(ev => (
           <div key={ev.id} className={`${styles.evRow} ${styles.evRowPast}`} onClick={() => router.push(`/events/${ev.slug}`)}>
             <div className={styles.evThumbWrap}>
-              <Image src={ev.posterUrl || '/video-poster.jpg'} alt={ev.title} width={220} height={275} className={styles.evThumb} style={{ filter: 'grayscale(1)', opacity: 0.82 }} />
+              <Image
+                src={ev.posterUrl || '/video-poster.jpg'}
+                alt={ev.title}
+                width={220}
+                height={275}
+                sizes="(max-width: 768px) 77px, 220px"
+                className={styles.evThumb}
+              />
             </div>
             <div className={styles.evInfo}>
               <div className={styles.evTitle}>{ev.displayTitle || ev.title}</div>

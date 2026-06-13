@@ -27,7 +27,7 @@ export const ResidentsSection = ({ residents, activeResident, onBack, events = [
     return (
       <div className={styles.residentDetail}>
         <button className={styles.backBtn} onClick={onBack}>← All Residents</button>
-        <div className={styles.rdName}>{activeResident.name}</div>
+        <h1 className={styles.rdName}>{activeResident.name}</h1>
         <div className={styles.rdBio}>{activeResident.bio}</div>
         <div className={styles.rdLinks}>
           {activeResident.instagramUrl && (
@@ -65,11 +65,11 @@ export const ResidentsSection = ({ residents, activeResident, onBack, events = [
 
   return (
     <>
-      <h2 className={compStyles.sectionTitle}>Sacristy Residents</h2>
+      <h1 className={compStyles.sectionTitle}>Sacristy Residents</h1>
       <div>
         {residents.map(r => (
           <Link key={r.id} href={`/residents/${r.slug}`} className={styles.residentCard} style={{ textDecoration: 'none', color: 'inherit' }}>
-            <Image src={r.photo || "/video-poster.jpg"} alt={r.name} width={138} height={173} className={styles.residentThumb} />
+            <Image src={r.photo || "/video-poster.jpg"} alt={r.name} width={138} height={173} sizes="138px" className={styles.residentThumb} />
             <div className={styles.residentInfo}>
               <div className={styles.residentName}>{r.name}</div>
               <div className={styles.resPlus}>+</div>

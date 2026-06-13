@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createResident, updateResident, deleteResident } from '@/services/resident.service';
 import { ResidentSchema } from '@/lib/validation/resident.schema';
+import { revalidateTag } from 'next/cache';
+import { CACHE_TAGS } from '@/lib/cache-tags';
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,6 +18,7 @@ export async function POST(request: NextRequest) {
     }
 
     const resident = await createResident(validation.data);
+    revalidateTag(CACHE_TAGS.residents, { expire: 0 });
 
     return NextResponse.json({ success: true, data: resident });
   } catch (error: any) {
@@ -43,6 +46,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const resident = await updateResident(id, validation.data);
+    revalidateTag(CACHE_TAGS.residents, { expire: 0 });
 
     return NextResponse.json({ success: true, data: resident });
   } catch (error: any) {
@@ -61,6 +65,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     await deleteResident(parseInt(id));
+    revalidateTag(CACHE_TAGS.residents, { expire: 0 });
 
     return NextResponse.json({ success: true });
   } catch (error: any) {

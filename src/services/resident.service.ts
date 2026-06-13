@@ -2,11 +2,13 @@ import { prisma } from '@/lib/prisma';
 import { Resident } from '@/types';
 import { logAction } from './activity-log.service';
 import { deleteFile } from '@/lib/storage/upload';
+import { unstable_cache } from 'next/cache';
+import { CACHE_TAGS } from '@/lib/cache-tags';
 
 /**
  * Returns all residents sorted by name ascending.
  */
-export const getResidents = async (): Promise<Resident[]> => {
+const getResidentsUncached = async (): Promise<Resident[]> => {
   return prisma.resident.findMany({
     orderBy: {
       name: 'asc',
@@ -14,10 +16,16 @@ export const getResidents = async (): Promise<Resident[]> => {
   }) as unknown as Promise<Resident[]>;
 };
 
+export const getResidents = unstable_cache(
+  getResidentsUncached,
+  ['public-residents'],
+  { revalidate: 300, tags: [CACHE_TAGS.residents] },
+);
+
 /**
  * Returns a resident profile by slug with their associated events.
  */
-export const getResidentBySlug = async (slug: string): Promise<Resident | null> => {
+const getResidentBySlugUncached = async (slug: string): Promise<Resident | null> => {
   return prisma.resident.findUnique({
     where: { slug },
     include: {
@@ -39,6 +47,12 @@ export const getResidentBySlug = async (slug: string): Promise<Resident | null> 
     },
   }) as unknown as Promise<Resident | null>;
 };
+
+export const getResidentBySlug = unstable_cache(
+  getResidentBySlugUncached,
+  ['resident-by-slug'],
+  { revalidate: 300, tags: [CACHE_TAGS.residents, CACHE_TAGS.events] },
+);
 
 export const getResidentById = async (id: number): Promise<Resident | null> => {
   return prisma.resident.findUnique({

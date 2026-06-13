@@ -17,16 +17,12 @@
     "@prisma/client": "^6.19.3",
     "bcryptjs": "^3.0.3",
     "better-sqlite3": "^12.10.0",
-    "clsx": "^2.1.1",
-    "date-fns": "^4.4.0",
     "jose": "^6.2.3",
     "next": "16.2.7",
     "prisma": "^6.19.3",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "react-hook-form": "^7.78.0",
     "sharp": "^0.34.5",
-    "tailwind-merge": "^3.6.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {

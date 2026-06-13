@@ -63,6 +63,18 @@
 .leftTopnav a.navLogoLink.active .navLogoImg {
   filter: brightness(0);
 }
+.navLogoLink {
+  opacity: 1 !important;
+  padding: 0 8px !important;
+}
+.navLogoImg {
+  display: block;
+  width: auto;
+  height: 40px;
+  max-width: 160px;
+  object-fit: contain;
+  filter: brightness(0) invert(1) contrast(1.5);
+}
 
 .logoWrap {
   flex: 1;

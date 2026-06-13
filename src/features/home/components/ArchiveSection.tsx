@@ -13,7 +13,7 @@ export const ArchiveSection = ({ archive }: ArchiveSectionProps) => {
 
   return (
     <>
-      <p className={styles.archiveMeta}>ARTISTS WHO HAVE PLAYED SACRISTY BANGKOK</p>
+      <h1 className={styles.archiveMeta}>ARTISTS WHO HAVE PLAYED SACRISTY BANGKOK</h1>
       <div className={styles.archiveFilters}>
         {years.map(year => (
           <button 

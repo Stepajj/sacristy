@@ -2,11 +2,13 @@ import { prisma } from '@/lib/prisma';
 import { Event, ArchiveArtist } from '@/types';
 import { logAction } from './activity-log.service';
 import { deleteFile } from '@/lib/storage/upload';
+import { unstable_cache } from 'next/cache';
+import { CACHE_TAGS } from '@/lib/cache-tags';
 
 /**
  * Returns a unique list of artists who have played at events, grouped by year.
  */
-export const getArtistArchive = async (): Promise<ArchiveArtist[]> => {
+const getArtistArchiveUncached = async (): Promise<ArchiveArtist[]> => {
   const lineups = await prisma.lineupItem.findMany({
     include: {
       resident: true,
@@ -69,7 +71,13 @@ export const getArtistArchive = async (): Promise<ArchiveArtist[]> => {
   return artists.sort((a, b) => a.name.localeCompare(b.name));
 };
 
-export const getUpcomingEvents = async (): Promise<Event[]> => {
+export const getArtistArchive = unstable_cache(
+  getArtistArchiveUncached,
+  ['artist-archive'],
+  { revalidate: 300, tags: [CACHE_TAGS.events, CACHE_TAGS.residents] },
+);
+
+const getUpcomingEventsUncached = async (): Promise<Event[]> => {
   const now = new Date();
   return prisma.event.findMany({
     where: { isPublished: true, eventDate: { gte: now } },
@@ -78,7 +86,13 @@ export const getUpcomingEvents = async (): Promise<Event[]> => {
   }) as unknown as Promise<Event[]>;
 };
 
-export const getArchiveEvents = async (limit?: number): Promise<Event[]> => {
+export const getUpcomingEvents = unstable_cache(
+  getUpcomingEventsUncached,
+  ['upcoming-events'],
+  { revalidate: 60, tags: [CACHE_TAGS.events, CACHE_TAGS.residents] },
+);
+
+const getArchiveEventsUncached = async (limit?: number): Promise<Event[]> => {
   const now = new Date();
   return prisma.event.findMany({
     where: { isPublished: true, eventDate: { lt: now } },
@@ -88,12 +102,24 @@ export const getArchiveEvents = async (limit?: number): Promise<Event[]> => {
   }) as unknown as Promise<Event[]>;
 };
 
-export const getEventBySlug = async (slug: string): Promise<Event | null> => {
+export const getArchiveEvents = unstable_cache(
+  getArchiveEventsUncached,
+  ['archive-events'],
+  { revalidate: 60, tags: [CACHE_TAGS.events, CACHE_TAGS.residents] },
+);
+
+const getEventBySlugUncached = async (slug: string): Promise<Event | null> => {
   return prisma.event.findUnique({
     where: { slug },
     include: { lineup: { include: { resident: true }, orderBy: { sortOrder: 'asc' } } },
   }) as unknown as Promise<Event | null>;
 };
+
+export const getEventBySlug = unstable_cache(
+  getEventBySlugUncached,
+  ['event-by-slug'],
+  { revalidate: 300, tags: [CACHE_TAGS.events, CACHE_TAGS.residents] },
+);
 
 export const getEventById = async (id: number): Promise<Event | null> => {
   return prisma.event.findUnique({

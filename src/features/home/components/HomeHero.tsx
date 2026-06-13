@@ -5,19 +5,20 @@ import { Resident } from "@/types/resident";
 import { Event } from "@/types/event";
 import { NewsletterSection } from "./NewsletterSection";
 import mobStyles from "@/styles/Mobile.module.css";
+import { useEffect, useRef } from "react";
 
 interface HomeHeroProps {
   activeSection: string;
   activeResident: Resident | null;
   activeEvent: Event | null;
   onReset: () => void;
-  onShowSection: (section: string) => void;
   onOpenMobMenu: () => void;
   onSignup: (e: React.FormEvent) => void;
   residentNavigation?: {
     previousHref: string;
     nextHref: string;
   };
+  videoRestartKey: number;
 }
 
 export const HomeHero = ({
@@ -25,12 +26,29 @@ export const HomeHero = ({
   activeResident,
   activeEvent,
   onReset,
-  onShowSection,
   onOpenMobMenu,
   onSignup,
-  residentNavigation
+  residentNavigation,
+  videoRestartKey
 }: HomeHeroProps) => {
   const isDetailActive = !!(activeResident || activeEvent);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const hasMounted = useRef(false);
+
+  useEffect(() => {
+    if (!hasMounted.current) {
+      hasMounted.current = true;
+      return;
+    }
+
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.pause();
+    video.currentTime = 0;
+    video.load();
+    void video.play().catch(() => undefined);
+  }, [videoRestartKey]);
 
   const handleViewEvents = (event: React.MouseEvent<HTMLAnchorElement>) => {
     if (activeSection !== "home") return;
@@ -41,7 +59,7 @@ export const HomeHero = ({
 
   return (
     <section className={styles.left}>
-      <video autoPlay muted loop playsInline poster="/video-poster.jpg" style={{ opacity: isDetailActive ? 0 : 1 }}>
+      <video ref={videoRef} autoPlay muted loop playsInline poster="/video-poster.jpg" style={{ opacity: isDetailActive ? 0 : 1 }}>
         <source src="/party-video.webm" type="video/webm" />
         <source src="/party-video.mp4" type="video/mp4" />
       </video>
@@ -49,7 +67,7 @@ export const HomeHero = ({
       {/* Resident Photo Layer */}
       {activeResident && (
         <div style={{position:'absolute', inset:0, zIndex:1}}>
-          <Image src={activeResident.photo || "/video-poster.jpg"} alt={activeResident.name} fill style={{objectFit:'cover', filter:'grayscale(100%) contrast(1.1)', opacity:0.75}} />
+          <Image src={activeResident.photo || "/video-poster.jpg"} alt={activeResident.name} fill sizes="(max-width: 1024px) 100vw, 60vw" style={{objectFit:'cover', filter:'grayscale(100%) contrast(1.1)', opacity:0.75}} />
           <div style={{position:'absolute', inset:0, background:'linear-gradient(to top, rgba(0,0,0,.7) 0%, transparent 60%)'}}></div>
         </div>
       )}
@@ -57,7 +75,7 @@ export const HomeHero = ({
       {/* Event Photo Layer */}
       {activeEvent && (
         <div style={{position:'absolute', inset:0, zIndex:1}}>
-          <Image src={activeEvent.posterUrl || "/og-image.jpg"} alt={activeEvent.title} fill style={{objectFit:'cover', filter:'grayscale(15%) contrast(1.05)', opacity:0.82}} />
+          <Image src={activeEvent.posterUrl || "/og-image.jpg"} alt={activeEvent.title} fill sizes="(max-width: 1024px) 100vw, 60vw" style={{objectFit:'cover', filter:'grayscale(15%) contrast(1.05)', opacity:0.82}} />
           <div style={{position:'absolute', inset:0, background:'linear-gradient(to top, rgba(0,0,0,.65) 0%, transparent 55%)'}}></div>
         </div>
       )}
@@ -65,7 +83,7 @@ export const HomeHero = ({
       <div className={styles.leftInner}>
         <nav className={styles.leftTopnav}>
           <Link href="/" className={`${styles.navLogoLink} ${activeSection === 'home' ? styles.active : ''}`} onClick={(e) => { e.preventDefault(); onReset(); }}>
-            <Image src="/logo.webp" alt="SACRISTY" width={120} height={40} className={styles.navLogoImg} />
+            <Image src="/logo.webp" alt="SACRISTY" width={121} height={60} sizes="81px" className={styles.navLogoImg} />
           </Link>
           <Link href="/events" className={activeSection === 'events' ? styles.active : ''}>Events</Link>
           <Link href="/residents" className={activeSection === 'residents' ? styles.active : ''}>Residents</Link>
@@ -77,13 +95,13 @@ export const HomeHero = ({
         </nav>
 
         <div className={styles.logoWrap} style={{ display: isDetailActive ? 'none' : 'flex' }}>
-          <Image src="/logo.webp" alt="Sacristy logo" width={242} height={121} priority />
+          <Image src="/logo.webp" alt="Sacristy logo" width={242} height={121} sizes="(max-width: 768px) 160px, 260px" priority />
         </div>
 
         {activeResident && (
           <>
             <div className={styles.residentMobileLogo}>
-              <Image src="/logo.webp" alt="Sacristy logo" width={242} height={121} priority />
+              <Image src="/logo.webp" alt="Sacristy logo" width={242} height={121} sizes="160px" priority />
             </div>
 
             {residentNavigation && (

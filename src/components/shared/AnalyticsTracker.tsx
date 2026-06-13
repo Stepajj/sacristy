@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { api } from "@/lib/api";
 
 export default function AnalyticsTracker() {
   const pathname = usePathname();
@@ -10,10 +9,14 @@ export default function AnalyticsTracker() {
   useEffect(() => {
     const track = async () => {
       try {
-        await api.trackPageView({
-          page: pathname,
-          referrer: document.referrer || null,
-          userAgent: navigator.userAgent,
+        await fetch("/api/public/stats", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            page: pathname,
+            referrer: document.referrer || null,
+            userAgent: navigator.userAgent,
+          }),
         });
       } catch (error) {
         // Analytics failures are silent

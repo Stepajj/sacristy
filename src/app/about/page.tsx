@@ -1,12 +1,12 @@
-export const dynamic = "force-dynamic";
-
-import { getPublicSettings } from "@/services/settings.service";
 import { AboutPageClient } from "./AboutPageClient";
+import type { Metadata } from "next";
 
-export default async function AboutPage() {
-  const settings = await getPublicSettings();
+export const metadata: Metadata = {
+  title: "About - SACRISTY Bangkok",
+  description: "Explore the visual archive of SACRISTY Bangkok.",
+  alternates: { canonical: "/about" },
+};
 
-  return (
-    <AboutPageClient settings={settings} />
-  );
+export default function AboutPage() {
+  return <AboutPageClient />;
 }

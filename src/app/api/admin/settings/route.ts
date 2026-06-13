@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { updateSetting } from '@/services/settings.service';
 import { logAction } from '@/services/activity-log.service';
+import { revalidateTag } from 'next/cache';
+import { CACHE_TAGS } from '@/lib/cache-tags';
 
 export async function PATCH(request: NextRequest) {
   try {
@@ -11,6 +13,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     await logAction('UPDATE_SETTINGS', 'Updated site settings');
+    revalidateTag(CACHE_TAGS.settings, { expire: 0 });
 
     return NextResponse.json({ success: true });
   } catch (error: any) {

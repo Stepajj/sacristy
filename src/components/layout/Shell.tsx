@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styles from "@/styles/Shell.module.css";
 import { HomeHero } from "@/features/home/components/HomeHero";
 import { MobileMenu } from "@/features/home/components/MobileMenu";
@@ -13,6 +13,7 @@ import { Event } from "@/types/event";
 import Image from "next/image";
 import Link from "next/link";
 import mobStyles from "@/styles/Mobile.module.css";
+import { NewsletterSection } from "@/features/home/components/NewsletterSection";
 
 interface ShellProps {
   children: React.ReactNode;
@@ -62,6 +63,35 @@ export const Shell = ({
 }: ShellProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const rightRef = useRef<HTMLElement>(null);
+  const [videoRestartKey, setVideoRestartKey] = useState(0);
+
+  const handleReset = () => {
+    setVideoRestartKey((key) => key + 1);
+    onReset();
+  };
+
+  useEffect(() => {
+    const handleSpaceScroll = (event: KeyboardEvent) => {
+      if (event.key !== " " || window.matchMedia("(max-width: 1024px)").matches) return;
+
+      const activeElement = document.activeElement as HTMLElement | null;
+      if (
+        activeElement?.tagName === "INPUT" ||
+        activeElement?.tagName === "TEXTAREA" ||
+        activeElement?.tagName === "SELECT" ||
+        activeElement?.isContentEditable
+      ) return;
+
+      event.preventDefault();
+      scrollRef.current?.scrollBy({
+        top: event.shiftKey ? -100 : 100,
+        behavior: "smooth",
+      });
+    };
+
+    document.addEventListener("keydown", handleSpaceScroll);
+    return () => document.removeEventListener("keydown", handleSpaceScroll);
+  }, []);
 
   useEffect(() => {
     if (!window.matchMedia("(max-width: 768px)").matches) return;
@@ -112,7 +142,7 @@ export const Shell = ({
   return (
     <main>
       <div className={mobStyles.mobHeader}>
-        <Link className={mobStyles.mobHeaderBrand} href="/" onClick={(e) => { e.preventDefault(); onReset(); }}>
+        <Link className={mobStyles.mobHeaderBrand} href="/" onClick={(e) => { e.preventDefault(); handleReset(); }}>
           <Image src="/logo.webp" alt="SACRISTY" width={100} height={24} className={mobStyles.mobHeaderLogo} />
         </Link>
         <button className={mobStyles.mobMenuBtn} onClick={() => setIsMobMenuOpen(true)}>Menu</button>
@@ -123,23 +153,23 @@ export const Shell = ({
           activeSection={activeSection}
           activeResident={activeResident}
           activeEvent={activeEvent}
-          onReset={onReset}
-          onShowSection={onShowSection}
+          onReset={handleReset}
           onOpenMobMenu={() => setIsMobMenuOpen(true)}
           onSignup={onSignup}
           residentNavigation={residentNavigation}
+          videoRestartKey={videoRestartKey}
         />
 
         <section className={styles.right} ref={rightRef}>
           {!hideRightTop && (
             <div className={styles.rightTop}>
-              <div style={{ flex: 1 }}>{/* Placeholder for Newsletter if needed per page */}</div>
-              <nav className={mobStyles.mobOverlaySocial} style={{ padding: 0, gap: '2px' }}>
-                <a href={socials.instagram} target="_blank" rel="noopener" aria-label="Instagram" style={{ opacity: 0.45, padding: '6px 9px' }}>{ICONS.IG}</a>
-                <a href={socials.soundcloud} target="_blank" rel="noopener" aria-label="SoundCloud" style={{ opacity: 0.45, padding: '6px 9px' }}><Image src="/sc-logo-sm.webp" alt="SC" width={20} height={20} style={{ filter: 'invert(1)' }} /></a>
-                <a href={socials.youtube} target="_blank" rel="noopener" aria-label="YouTube" style={{ opacity: 0.45, padding: '6px 9px' }}>{ICONS.YT}</a>
-                <a href={socials.telegram} target="_blank" rel="noopener" aria-label="Telegram" style={{ opacity: 0.45, padding: '6px 9px' }}>{ICONS.TG}</a>
-                <a href={socials.ra} target="_blank" rel="noopener" aria-label="Resident Advisor" style={{ opacity: 0.45, padding: '6px 9px' }}>{ICONS.RA}</a>
+              <NewsletterSection onSignup={onSignup} variant="desktop" />
+              <nav className={styles.rightNav}>
+                <a href={socials.instagram} target="_blank" rel="noopener" aria-label="Instagram">{ICONS.IG}</a>
+                <a href={socials.soundcloud} target="_blank" rel="noopener" aria-label="SoundCloud"><Image src="/sc-logo-sm.webp" alt="SC" width={20} height={20} /></a>
+                <a href={socials.youtube} target="_blank" rel="noopener" aria-label="YouTube">{ICONS.YT}</a>
+                <a href={socials.telegram} target="_blank" rel="noopener" aria-label="Telegram">{ICONS.TG}</a>
+                <a href={socials.ra} target="_blank" rel="noopener" aria-label="Resident Advisor">{ICONS.RA}</a>
               </nav>
             </div>
           )}

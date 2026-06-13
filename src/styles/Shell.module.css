@@ -23,6 +23,31 @@
   min-height: 44px;
 }
 
+.rightNav {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+}
+
+.rightNav a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 9px;
+  color: var(--white);
+  opacity: 1;
+  border-radius: 2px;
+  transition: background .15s;
+}
+
+.rightNav a:hover {
+  background: rgba(255, 255, 255, .06);
+}
+
+.rightNav img {
+  filter: invert(1);
+}
+
 .scroll {
   min-height: 0;
   overflow-y: auto;

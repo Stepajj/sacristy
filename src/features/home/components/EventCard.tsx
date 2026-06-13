@@ -25,6 +25,7 @@ export const EventCard = ({ ev, featured, isArchive }: EventCardProps) => (
           height={500}
           className={styles.poster}
           priority={featured}
+          sizes="(max-width: 768px) 108px, (max-width: 1180px) 20vw, 13vw"
         />
       </a>
     </div>

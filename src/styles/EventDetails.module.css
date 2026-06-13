@@ -83,6 +83,30 @@
   filter: invert(1);
 }
 
+.evRowPast:hover {
+  filter: none;
+  background: rgba(255, 255, 255, .03);
+}
+
+.evRowPast .evThumb {
+  filter: grayscale(1);
+  opacity: .82;
+  transition: filter .4s ease, opacity .4s ease;
+}
+
+.evRowPast:hover .evThumb {
+  filter: grayscale(0);
+  opacity: 1;
+}
+
+.evRowPast:hover .evTitle,
+.evRowPast:hover .evDate,
+.evRowPast:hover .evLocationText,
+.evRowPast:hover .evDjs,
+.evRowPast:hover .evPlus {
+  filter: none;
+}
+
 .evDetailTitle {
   font-family: 'Bebas Neue', sans-serif;
   font-size: 48px;

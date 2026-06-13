@@ -1,4 +1,3 @@
-import Image from "next/image";
 import styles from "@/styles/EventDetails.module.css";
 import residentStyles from "@/styles/Residents.module.css";
 import { Event } from "@/types/event";
@@ -13,7 +12,7 @@ interface EventDetailViewProps {
 export const EventDetailView = ({ event, onBack }: EventDetailViewProps) => (
   <div className={styles.eventsDetailView}>
     <button className={residentStyles.backBtn} onClick={onBack}>← All Events</button>
-    <div className={styles.evDetailTitle}>{event.displayTitle || event.title}</div>
+    <h1 className={styles.evDetailTitle}>{event.displayTitle || event.title}</h1>
     <div className={styles.evDetailDate}>{fmtDate(event.eventDate)}</div>
     <div className={styles.evDetailLocation}>{event.location}</div>
     {event.coords && <div className={styles.evDetailCoords}>GPS: <a href={`https://www.google.com/maps?q=${event.coords}`} target="_blank">{event.coords}</a></div>}

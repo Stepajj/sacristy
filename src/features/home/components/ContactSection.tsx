@@ -2,7 +2,7 @@ import styles from "@/styles/Policies.module.css";
 
 export const ContactSection = () => (
   <div className={`${styles.evPolicy} ${styles.evPolicyFlush}`}>
-    <div className={styles.evPolicyTitle}>Contact</div>
+    <h1 className={styles.evPolicyTitle}>Contact</h1>
 
     <div className={styles.evPolicyBlock}>
       <div className={styles.evPolicyLabel}>General</div>

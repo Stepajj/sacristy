@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createEvent, updateEvent, deleteEvent } from '@/services/event.service';
 import { EventSchema } from '@/lib/validation/event.schema';
+import { revalidateTag } from 'next/cache';
+import { CACHE_TAGS } from '@/lib/cache-tags';
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,6 +21,7 @@ export async function POST(request: NextRequest) {
       ...validation.data,
       eventDate: new Date(validation.data.eventDate),
     });
+    revalidateTag(CACHE_TAGS.events, { expire: 0 });
 
     return NextResponse.json({ success: true, data: event });
   } catch (error: any) {
@@ -49,6 +52,7 @@ export async function PATCH(request: NextRequest) {
       ...validation.data,
       eventDate: validation.data.eventDate ? new Date(validation.data.eventDate) : undefined,
     });
+    revalidateTag(CACHE_TAGS.events, { expire: 0 });
 
     return NextResponse.json({ success: true, data: event });
   } catch (error: any) {
@@ -67,6 +71,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     await deleteEvent(parseInt(id));
+    revalidateTag(CACHE_TAGS.events, { expire: 0 });
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
