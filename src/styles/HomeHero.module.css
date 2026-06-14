@@ -207,3 +207,45 @@
 @media (max-width: 720px) {
   .logoWrap img { width: 44%; }
 }
+
+
+.residentDesktopNav {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+}
+
+.residentDesktopArrow {
+  pointer-events: all;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 35px;
+  cursor: pointer;
+  transition: color 0.2s;
+  padding: 10px;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.residentDesktopArrow:hover {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.residentDesktopArrowPrev {
+  left: 16px;
+}
+
+.residentDesktopArrowNext {
+  right: 16px;
+}
+
+@media (max-width: 768px) {
+  .residentDesktopNav {
+    display: none;
+  }
+}

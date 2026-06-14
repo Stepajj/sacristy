@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import styles from "@/styles/Shell.module.css";
 import { HomeHero } from "@/features/home/components/HomeHero";
 import { MobileMenu } from "@/features/home/components/MobileMenu";
@@ -59,14 +59,13 @@ export const Shell = ({
   onSignup,
   hideRightTop = false,
   settings = {},
-  residentNavigation
+  residentNavigation,
 }: ShellProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const rightRef = useRef<HTMLElement>(null);
-  const [videoRestartKey, setVideoRestartKey] = useState(0);
 
   const handleReset = () => {
-    setVideoRestartKey((key) => key + 1);
+    window.dispatchEvent(new window.Event("sacristy:restart-video"));
     onReset();
   };
 
@@ -92,6 +91,64 @@ export const Shell = ({
     document.addEventListener("keydown", handleSpaceScroll);
     return () => document.removeEventListener("keydown", handleSpaceScroll);
   }, []);
+useEffect(() => {
+  if (window.matchMedia("(max-width: 768px)").matches) return;
+
+  let targetScroll = 0;
+  let currentScroll = 0;
+  let animationFrame: number | null = null;
+
+  const animateScroll = () => {
+    const scrollEl = scrollRef.current;
+    if (!scrollEl) return;
+
+    currentScroll += (targetScroll - currentScroll) * 0.14;
+
+    if (Math.abs(targetScroll - currentScroll) < 0.5) {
+      scrollEl.scrollTop = targetScroll;
+      animationFrame = null;
+      return;
+    }
+
+    scrollEl.scrollTop = currentScroll;
+    animationFrame = requestAnimationFrame(animateScroll);
+  };
+
+  const handleGlobalWheel = (event: WheelEvent) => {
+    const scrollEl = scrollRef.current;
+    if (!scrollEl) return;
+
+    const target = event.target as HTMLElement | null;
+
+    if (target && scrollEl.contains(target)) {
+      return;
+    }
+
+    event.preventDefault();
+
+    const maxScroll = scrollEl.scrollHeight - scrollEl.clientHeight;
+
+    targetScroll = Math.max(
+      0,
+      Math.min(maxScroll, targetScroll + event.deltaY * 1.15)
+    );
+
+    if (animationFrame === null) {
+      currentScroll = scrollEl.scrollTop;
+      animationFrame = requestAnimationFrame(animateScroll);
+    }
+  };
+
+  window.addEventListener("wheel", handleGlobalWheel, { passive: false });
+
+  return () => {
+    window.removeEventListener("wheel", handleGlobalWheel);
+
+    if (animationFrame !== null) {
+      cancelAnimationFrame(animationFrame);
+    }
+  };
+}, []);
 
   useEffect(() => {
     if (!window.matchMedia("(max-width: 768px)").matches) return;
@@ -114,10 +171,12 @@ export const Shell = ({
       const headerHeight = header?.offsetHeight || 0;
       let top = 0;
       let element: HTMLElement | null = right;
+
       while (element) {
         top += element.offsetTop;
         element = element.offsetParent as HTMLElement | null;
       }
+
       top -= headerHeight;
       setMobileScroll(Math.max(0, top));
     };
@@ -149,7 +208,7 @@ export const Shell = ({
       </div>
 
       <div className={styles.shell}>
-        <HomeHero 
+        <HomeHero
           activeSection={activeSection}
           activeResident={activeResident}
           activeEvent={activeEvent}
@@ -157,7 +216,6 @@ export const Shell = ({
           onOpenMobMenu={() => setIsMobMenuOpen(true)}
           onSignup={onSignup}
           residentNavigation={residentNavigation}
-          videoRestartKey={videoRestartKey}
         />
 
         <section className={styles.right} ref={rightRef}>
@@ -166,7 +224,9 @@ export const Shell = ({
               <NewsletterSection onSignup={onSignup} variant="desktop" />
               <nav className={styles.rightNav}>
                 <a href={socials.instagram} target="_blank" rel="noopener" aria-label="Instagram">{ICONS.IG}</a>
-                <a href={socials.soundcloud} target="_blank" rel="noopener" aria-label="SoundCloud"><Image src="/sc-logo-sm.webp" alt="SC" width={20} height={20} /></a>
+                <a href={socials.soundcloud} target="_blank" rel="noopener" aria-label="SoundCloud">
+                  <Image src="/sc-logo-sm.webp" alt="SC" width={20} height={20} />
+                </a>
                 <a href={socials.youtube} target="_blank" rel="noopener" aria-label="YouTube">{ICONS.YT}</a>
                 <a href={socials.telegram} target="_blank" rel="noopener" aria-label="Telegram">{ICONS.TG}</a>
                 <a href={socials.ra} target="_blank" rel="noopener" aria-label="Resident Advisor">{ICONS.RA}</a>
@@ -180,7 +240,7 @@ export const Shell = ({
         </section>
       </div>
 
-      <MobileMenu 
+      <MobileMenu
         isOpen={isMobMenuOpen}
         onClose={() => setIsMobMenuOpen(false)}
         activeSection={activeSection}
@@ -192,17 +252,20 @@ export const Shell = ({
 
       <MobileBar activeSection={activeSection} socials={socials} />
 
-      <SuccessModal 
-        isActive={isSignupActive} 
-        isVisible={isSignupVisible} 
-        onClose={() => { setIsSignupVisible(false); setTimeout(() => setIsSignupActive(false), 400); }} 
+      <SuccessModal
+        isActive={isSignupActive}
+        isVisible={isSignupVisible}
+        onClose={() => {
+          setIsSignupVisible(false);
+          setTimeout(() => setIsSignupActive(false), 400);
+        }}
       />
 
-      <CookieBanner 
-        isVisible={cookieBannerVisible} 
-        onAccept={onAcceptCookies} 
-        onDecline={onDeclineCookies} 
+      <CookieBanner
+        isVisible={cookieBannerVisible}
+        onAccept={onAcceptCookies}
+        onDecline={onDeclineCookies}
       />
     </main>
   );
-};
+};  

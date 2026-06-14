@@ -91,3 +91,11 @@
     padding: 16px 16px 24px;
   }
 }
+
+
+.scroll {
+  overflow-y: auto;
+  scroll-behavior: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
