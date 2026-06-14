@@ -14,6 +14,8 @@ import Image from "next/image";
 import Link from "next/link";
 import mobStyles from "@/styles/Mobile.module.css";
 import { NewsletterSection } from "@/features/home/components/NewsletterSection";
+import { motion } from "framer-motion";
+import { usePathname } from "next/navigation";
 
 interface ShellProps {
   children: React.ReactNode;
@@ -63,6 +65,7 @@ export const Shell = ({
 }: ShellProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const rightRef = useRef<HTMLElement>(null);
+  const pathname = usePathname();
 
   const handleReset = () => {
     window.dispatchEvent(new window.Event("sacristy:restart-video"));
@@ -91,64 +94,65 @@ export const Shell = ({
     document.addEventListener("keydown", handleSpaceScroll);
     return () => document.removeEventListener("keydown", handleSpaceScroll);
   }, []);
-useEffect(() => {
-  if (window.matchMedia("(max-width: 768px)").matches) return;
 
-  let targetScroll = 0;
-  let currentScroll = 0;
-  let animationFrame: number | null = null;
+  useEffect(() => {
+    if (window.matchMedia("(max-width: 768px)").matches) return;
 
-  const animateScroll = () => {
-    const scrollEl = scrollRef.current;
-    if (!scrollEl) return;
+    let targetScroll = 0;
+    let currentScroll = 0;
+    let animationFrame: number | null = null;
 
-    currentScroll += (targetScroll - currentScroll) * 0.14;
+    const animateScroll = () => {
+      const scrollEl = scrollRef.current;
+      if (!scrollEl) return;
 
-    if (Math.abs(targetScroll - currentScroll) < 0.5) {
-      scrollEl.scrollTop = targetScroll;
-      animationFrame = null;
-      return;
-    }
+      currentScroll += (targetScroll - currentScroll) * 0.14;
 
-    scrollEl.scrollTop = currentScroll;
-    animationFrame = requestAnimationFrame(animateScroll);
-  };
+      if (Math.abs(targetScroll - currentScroll) < 0.5) {
+        scrollEl.scrollTop = targetScroll;
+        animationFrame = null;
+        return;
+      }
 
-  const handleGlobalWheel = (event: WheelEvent) => {
-    const scrollEl = scrollRef.current;
-    if (!scrollEl) return;
-
-    const target = event.target as HTMLElement | null;
-
-    if (target && scrollEl.contains(target)) {
-      return;
-    }
-
-    event.preventDefault();
-
-    const maxScroll = scrollEl.scrollHeight - scrollEl.clientHeight;
-
-    targetScroll = Math.max(
-      0,
-      Math.min(maxScroll, targetScroll + event.deltaY * 1.15)
-    );
-
-    if (animationFrame === null) {
-      currentScroll = scrollEl.scrollTop;
+      scrollEl.scrollTop = currentScroll;
       animationFrame = requestAnimationFrame(animateScroll);
-    }
-  };
+    };
 
-  window.addEventListener("wheel", handleGlobalWheel, { passive: false });
+    const handleGlobalWheel = (event: WheelEvent) => {
+      const scrollEl = scrollRef.current;
+      if (!scrollEl) return;
 
-  return () => {
-    window.removeEventListener("wheel", handleGlobalWheel);
+      const target = event.target as HTMLElement | null;
 
-    if (animationFrame !== null) {
-      cancelAnimationFrame(animationFrame);
-    }
-  };
-}, []);
+      if (target && scrollEl.contains(target)) {
+        return;
+      }
+
+      event.preventDefault();
+
+      const maxScroll = scrollEl.scrollHeight - scrollEl.clientHeight;
+
+      targetScroll = Math.max(
+        0,
+        Math.min(maxScroll, targetScroll + event.deltaY * 1.15)
+      );
+
+      if (animationFrame === null) {
+        currentScroll = scrollEl.scrollTop;
+        animationFrame = requestAnimationFrame(animateScroll);
+      }
+    };
+
+    window.addEventListener("wheel", handleGlobalWheel, { passive: false });
+
+    return () => {
+      window.removeEventListener("wheel", handleGlobalWheel);
+
+      if (animationFrame !== null) {
+        cancelAnimationFrame(animationFrame);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (!window.matchMedia("(max-width: 768px)").matches) return;
@@ -189,6 +193,10 @@ useEffect(() => {
       window.clearTimeout(timer);
     };
   }, [activeSection, activeResident, activeEvent]);
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: 0, behavior: "auto" });
+  }, [pathname]);
 
   const socials = {
     instagram: settings.instagram || "https://www.instagram.com/sacristy.bangkok/",
@@ -235,7 +243,14 @@ useEffect(() => {
           )}
 
           <div className={styles.scroll} ref={scrollRef}>
-            {children}
+            <motion.div
+              key={pathname}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.2 }}
+            >
+              {children}
+            </motion.div>
           </div>
         </section>
       </div>
@@ -268,4 +283,4 @@ useEffect(() => {
       />
     </main>
   );
-};  
+};
