@@ -49,6 +49,14 @@
   transition: filter .4s ease, color .4s ease;
 }
 
+.residentDetail {
+  transition: opacity .3s ease;
+}
+
+.residentDetailFading {
+  opacity: 0;
+}
+
 .backBtn {
   display: inline-flex;
   align-items: center;

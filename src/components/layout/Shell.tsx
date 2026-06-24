@@ -14,7 +14,6 @@ import Image from "next/image";
 import Link from "next/link";
 import mobStyles from "@/styles/Mobile.module.css";
 import { NewsletterSection } from "@/features/home/components/NewsletterSection";
-import { motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 
 interface ShellProps {
@@ -22,6 +21,7 @@ interface ShellProps {
   activeSection: string;
   activeResident?: Resident | null;
   activeEvent?: Event | null;
+  residentPhotoLayers?: Resident[];
   isMobMenuOpen: boolean;
   setIsMobMenuOpen: (open: boolean) => void;
   isSignupActive: boolean;
@@ -40,6 +40,7 @@ interface ShellProps {
     previousHref: string;
     nextHref: string;
   };
+  onResidentNavigate?: (href: string) => void;
 }
 
 export const Shell = ({
@@ -47,6 +48,7 @@ export const Shell = ({
   activeSection,
   activeResident = null,
   activeEvent = null,
+  residentPhotoLayers = [],
   isMobMenuOpen,
   setIsMobMenuOpen,
   isSignupActive,
@@ -62,6 +64,7 @@ export const Shell = ({
   hideRightTop = false,
   settings = {},
   residentNavigation,
+  onResidentNavigate,
 }: ShellProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const rightRef = useRef<HTMLElement>(null);
@@ -73,8 +76,54 @@ export const Shell = ({
   };
 
   useEffect(() => {
-    const handleSpaceScroll = (event: KeyboardEvent) => {
-      if (event.key !== " " || window.matchMedia("(max-width: 1024px)").matches) return;
+    if (window.matchMedia("(max-width: 768px)").matches) return;
+
+    const scrollEl = scrollRef.current;
+    if (!scrollEl) return;
+
+    const leftPanel = document.querySelector<HTMLElement>("[data-scroll-panel='left']");
+    const leftInner = document.querySelector<HTMLElement>("[data-scroll-panel='left-inner']");
+
+    let st = 0;
+    let sc = 0;
+    let vel = 0;
+    let raf: number | null = null;
+
+    const ease = () => {
+      vel *= 0.88;
+      st += vel;
+      const max = scrollEl.scrollHeight - scrollEl.clientHeight;
+      st = Math.min(Math.max(st, 0), max);
+      const d = st - sc;
+      sc += d * 0.072;
+      scrollEl.scrollTop = sc;
+
+      if (Math.abs(d) > 0.1 || Math.abs(vel) > 0.1) {
+        raf = requestAnimationFrame(ease);
+      } else {
+        sc = st;
+        scrollEl.scrollTop = sc;
+        raf = null;
+      }
+    };
+
+    const startEase = () => {
+      if (raf === null) {
+        sc = scrollEl.scrollTop;
+        st = sc;
+        raf = requestAnimationFrame(ease);
+      }
+    };
+
+    const wheel = (event: WheelEvent) => {
+      event.preventDefault();
+      vel += event.deltaY * 0.25;
+      vel = Math.max(Math.min(vel, 60), -60);
+      startEase();
+    };
+
+    const handleKeydown = (event: KeyboardEvent) => {
+      if (event.key !== " ") return;
 
       const activeElement = document.activeElement as HTMLElement | null;
       if (
@@ -85,72 +134,87 @@ export const Shell = ({
       ) return;
 
       event.preventDefault();
-      scrollRef.current?.scrollBy({
-        top: event.shiftKey ? -100 : 100,
-        behavior: "smooth",
-      });
+      vel += event.shiftKey ? -100 : 100;
+      vel = Math.max(Math.min(vel, 200), -200);
+      startEase();
     };
 
-    document.addEventListener("keydown", handleSpaceScroll);
-    return () => document.removeEventListener("keydown", handleSpaceScroll);
-  }, []);
+    let midScroll = false;
+    let midStartY = 0;
+    let midY = 0;
+    let midRAF: number | null = null;
+    const MIDSPEED = 0.055;
 
-  useEffect(() => {
-    if (window.matchMedia("(max-width: 768px)").matches) return;
-
-    let targetScroll = 0;
-    let currentScroll = 0;
-    let animationFrame: number | null = null;
-
-    const animateScroll = () => {
-      const scrollEl = scrollRef.current;
-      if (!scrollEl) return;
-
-      currentScroll += (targetScroll - currentScroll) * 0.14;
-
-      if (Math.abs(targetScroll - currentScroll) < 0.5) {
-        scrollEl.scrollTop = targetScroll;
-        animationFrame = null;
-        return;
-      }
-
-      scrollEl.scrollTop = currentScroll;
-      animationFrame = requestAnimationFrame(animateScroll);
-    };
-
-    const handleGlobalWheel = (event: WheelEvent) => {
-      const scrollEl = scrollRef.current;
-      if (!scrollEl) return;
-
-      const target = event.target as HTMLElement | null;
-
-      if (target && scrollEl.contains(target)) {
-        return;
-      }
-
+    const startMidScroll = (event: MouseEvent) => {
+      if (event.button !== 1) return;
       event.preventDefault();
+      midScroll = true;
+      midStartY = event.clientY;
+      midY = event.clientY;
+      document.body.style.cursor = "ns-resize";
 
-      const maxScroll = scrollEl.scrollHeight - scrollEl.clientHeight;
+      const tick = () => {
+        if (!midScroll) return;
+        const speed = (midY - midStartY) * MIDSPEED;
+        vel += speed;
+        vel = Math.max(Math.min(vel, 60), -60);
+        startEase();
+        midRAF = requestAnimationFrame(tick);
+      };
 
-      targetScroll = Math.max(
-        0,
-        Math.min(maxScroll, targetScroll + event.deltaY * 1.15)
-      );
-
-      if (animationFrame === null) {
-        currentScroll = scrollEl.scrollTop;
-        animationFrame = requestAnimationFrame(animateScroll);
-      }
+      tick();
     };
 
-    window.addEventListener("wheel", handleGlobalWheel, { passive: false });
+    const handleMouseMove = (event: MouseEvent) => {
+      if (midScroll) midY = event.clientY;
+    };
+
+    const handleMouseUp = (event: MouseEvent) => {
+      if (event.button !== 1 || !midScroll) return;
+      midScroll = false;
+      document.body.style.cursor = "";
+      if (midRAF !== null) cancelAnimationFrame(midRAF);
+      vel *= 0.3;
+    };
+
+    const wheelOpts = { passive: false as const };
+
+    scrollEl.addEventListener("wheel", wheel, wheelOpts);
+    leftPanel?.addEventListener("wheel", wheel, wheelOpts);
+    leftInner?.addEventListener("wheel", wheel, wheelOpts);
+    scrollEl.addEventListener("mousedown", startMidScroll);
+    leftPanel?.addEventListener("mousedown", startMidScroll);
+    document.addEventListener("keydown", handleKeydown);
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+
+    const resetScroll = () => {
+      if (raf !== null) {
+        cancelAnimationFrame(raf);
+        raf = null;
+      }
+      st = 0;
+      sc = 0;
+      vel = 0;
+      scrollEl.scrollTop = 0;
+    };
+
+    window.addEventListener("sacristy:reset-scroll", resetScroll);
 
     return () => {
-      window.removeEventListener("wheel", handleGlobalWheel);
+      scrollEl.removeEventListener("wheel", wheel);
+      leftPanel?.removeEventListener("wheel", wheel);
+      leftInner?.removeEventListener("wheel", wheel);
+      scrollEl.removeEventListener("mousedown", startMidScroll);
+      leftPanel?.removeEventListener("mousedown", startMidScroll);
+      document.removeEventListener("keydown", handleKeydown);
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+      window.removeEventListener("sacristy:reset-scroll", resetScroll);
 
-      if (animationFrame !== null) {
-        cancelAnimationFrame(animationFrame);
-      }
+      if (raf !== null) cancelAnimationFrame(raf);
+      if (midRAF !== null) cancelAnimationFrame(midRAF);
+      document.body.style.cursor = "";
     };
   }, []);
 
@@ -195,7 +259,7 @@ export const Shell = ({
   }, [activeSection, activeResident, activeEvent]);
 
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: 0, behavior: "auto" });
+    window.dispatchEvent(new window.Event("sacristy:reset-scroll"));
   }, [pathname]);
 
   const socials = {
@@ -220,10 +284,12 @@ export const Shell = ({
           activeSection={activeSection}
           activeResident={activeResident}
           activeEvent={activeEvent}
+          residentPhotoLayers={residentPhotoLayers}
           onReset={handleReset}
           onOpenMobMenu={() => setIsMobMenuOpen(true)}
           onSignup={onSignup}
           residentNavigation={residentNavigation}
+          onResidentNavigate={onResidentNavigate}
         />
 
         <section className={styles.right} ref={rightRef}>
@@ -242,15 +308,8 @@ export const Shell = ({
             </div>
           )}
 
-          <div className={styles.scroll} ref={scrollRef}>
-            <motion.div
-              key={pathname}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.2 }}
-            >
-              {children}
-            </motion.div>
+          <div className={styles.scroll} ref={scrollRef} data-scroll-panel="scroll">
+            {children}
           </div>
         </section>
       </div>

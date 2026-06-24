@@ -31,7 +31,7 @@ export function HomePageClient({ upcomingEvents, pastEvents, settings }: HomePag
     setIsSignupActive(true);
     setTimeout(() => setIsSignupVisible(true), 10);
   };
-
+  
   return (
     <Shell
       activeSection="home"

@@ -4,6 +4,8 @@
   cursor: pointer;
   transition: background .15s;
   border-bottom: 1px solid var(--line);
+  text-decoration: none;
+  color: inherit;
 }
 .eventsUpcomingList {
   margin-bottom: 40px;
@@ -99,9 +101,17 @@
   opacity: 1;
 }
 
-.evRowPast:hover .evTitle,
+.evRowPast:hover .evTitle {
+  filter: none;
+  color: rgba(255, 255, 255, .95);
+}
+
 .evRowPast:hover .evDate,
-.evRowPast:hover .evLocationText,
+.evRowPast:hover .evLocationText {
+  filter: none;
+  color: rgba(220, 220, 220, .85);
+}
+
 .evRowPast:hover .evDjs,
 .evRowPast:hover .evPlus {
   filter: none;

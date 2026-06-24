@@ -12,7 +12,11 @@ interface ResidentsPageClientProps {
   settings: Record<string, string>;
 }
 
-export function ResidentsPageClient({ initialResidents, upcomingEvents, settings }: ResidentsPageClientProps) {
+export function ResidentsPageClient({
+  initialResidents,
+  upcomingEvents,
+  settings,
+}: ResidentsPageClientProps) {
   const [isMobMenuOpen, setIsMobMenuOpen] = useState(false);
   const [isSignupVisible, setIsSignupVisible] = useState(false);
   const [isSignupActive, setIsSignupActive] = useState(false);
@@ -33,6 +37,7 @@ export function ResidentsPageClient({ initialResidents, upcomingEvents, settings
   return (
     <Shell
       activeSection="residents"
+      residentPhotoLayers={initialResidents}
       isMobMenuOpen={isMobMenuOpen}
       setIsMobMenuOpen={setIsMobMenuOpen}
       isSignupActive={isSignupActive}
@@ -40,19 +45,25 @@ export function ResidentsPageClient({ initialResidents, upcomingEvents, settings
       setIsSignupVisible={setIsSignupVisible}
       setIsSignupActive={setIsSignupActive}
       cookieBannerVisible={cookieBannerVisible}
-      onAcceptCookies={() => { localStorage.setItem("sacristy_cookies", "accepted"); setCookieBannerVisible(false); }}
-      onDeclineCookies={() => { localStorage.setItem("sacristy_cookies", "declined"); setCookieBannerVisible(false); }}
+      onAcceptCookies={() => {
+        localStorage.setItem("sacristy_cookies", "accepted");
+        setCookieBannerVisible(false);
+      }}
+      onDeclineCookies={() => {
+        localStorage.setItem("sacristy_cookies", "declined");
+        setCookieBannerVisible(false);
+      }}
       onReset={() => router.push("/")}
       onShowSection={(section) => router.push(`/${section}`)}
       onSignup={handleSignup}
       settings={settings}
     >
-     <ResidentsSection
-  residents={initialResidents}
-  activeResident={null}
-  onBack={() => router.push("/")}
-  events={upcomingEvents}
-/>
+      <ResidentsSection
+        residents={initialResidents}
+        activeResident={null}
+        onBack={() => router.push("/")}
+        events={upcomingEvents}
+      />
     </Shell>
   );
 }

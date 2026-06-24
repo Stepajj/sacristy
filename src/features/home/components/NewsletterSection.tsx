@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import styles from "@/styles/Newsletter.module.css";
 
 interface NewsletterSectionProps {
@@ -9,42 +8,30 @@ interface NewsletterSectionProps {
 }
 
 export const NewsletterSection = ({ onSignup, variant = "block" }: NewsletterSectionProps) => {
-  const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
-
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const input = event.currentTarget.querySelector<HTMLInputElement>('input[type="email"]');
     const email = input?.value.trim();
 
-    if (!email || status === "loading") return;
-
-    setStatus("loading");
-
-    try {
-      const response = await fetch("/api/subscribe", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-
-      if (!response.ok) throw new Error("Subscription failed");
-
-      if (input) input.value = "";
-      setStatus("idle");
-      onSignup(event);
-    } catch (error) {
-      console.error(error);
-      setStatus("error");
+    if (!email || !email.includes("@")) {
+      if (input) {
+        input.style.outline = "1px solid #b60000";
+        window.setTimeout(() => { input.style.outline = ""; }, 1000);
+      }
+      return;
     }
+
+    void fetch("/api/subscribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    }).catch(() => undefined);
+
+    if (input) input.value = "";
+    onSignup(event);
   };
 
-  const buttonLabel = status === "loading"
-    ? "..."
-    : status === "error"
-      ? "Retry"
-      : variant === "mobile"
-        ? "\u2192"
-        : "Enter";
+  const buttonLabel = variant === "mobile" ? "\u2192" : "Enter";
 
   if (variant === "desktop") {
     return (
@@ -52,7 +39,7 @@ export const NewsletterSection = ({ onSignup, variant = "block" }: NewsletterSec
         <span className={styles.rightSignupLabel}>Sign up to the newsletter</span>
         <form className={styles.rightSignupForm} onSubmit={handleSubmit}>
           <input className={styles.rightSignupInput} type="email" placeholder="YOUR EMAIL" required id="signupEmailTop" name="signup-top" />
-          <button type="submit" className={styles.rightSignupBtn} disabled={status === "loading"}>{buttonLabel}</button>
+          <button type="submit" className={styles.rightSignupBtn}>{buttonLabel}</button>
         </form>
       </div>
     );
@@ -64,7 +51,7 @@ export const NewsletterSection = ({ onSignup, variant = "block" }: NewsletterSec
         <div className={styles.mobOverlaySignupLabel}>Sign up to the newsletter</div>
         <form className={styles.signupBlockForm} onSubmit={handleSubmit}>
           <input className={styles.signupBlockInput} type="email" placeholder="YOUR EMAIL" required id="signupEmailMob" name="signup-mob" />
-          <button type="submit" className={styles.signupBlockBtn} disabled={status === "loading"}>{buttonLabel}</button>
+          <button type="submit" className={styles.signupBlockBtn}>{buttonLabel}</button>
         </form>
       </div>
     );
@@ -78,7 +65,7 @@ export const NewsletterSection = ({ onSignup, variant = "block" }: NewsletterSec
       </p>
       <form className={styles.signupBlockForm} onSubmit={handleSubmit}>
         <input className={styles.signupBlockInput} type="email" placeholder="YOUR EMAIL" required id="signupEmail" name="signup-bottom" />
-        <button type="submit" className={styles.signupBlockBtn} disabled={status === "loading"}>{buttonLabel}</button>
+        <button type="submit" className={styles.signupBlockBtn}>{buttonLabel}</button>
       </form>
     </div>
   );

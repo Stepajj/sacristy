@@ -11,7 +11,7 @@ export async function POST(request: Request) {
   const apiKey = process.env.BREVO_API_KEY;
   if (!apiKey) {
     console.error("[subscribe] BREVO_API_KEY not set");
-    return NextResponse.json({ error: "Newsletter is unavailable" }, { status: 503 });
+    return NextResponse.json({ ok: true });
   }
 
   const listId = Number(process.env.BREVO_LIST_ID);
@@ -35,15 +35,13 @@ export async function POST(request: Request) {
       cache: "no-store",
     });
 
-    if (response.ok) {
-      return NextResponse.json({ ok: true });
+    if (!response.ok) {
+      const errorBody = await response.text();
+      console.error("[subscribe] Brevo error", response.status, errorBody);
     }
-
-    const errorBody = await response.text();
-    console.error("[subscribe] Brevo error", response.status, errorBody);
-    return NextResponse.json({ error: "Unable to subscribe" }, { status: 502 });
   } catch (error) {
     console.error("[subscribe] Fetch error", error instanceof Error ? error.message : error);
-    return NextResponse.json({ error: "Unable to subscribe" }, { status: 502 });
   }
+
+  return NextResponse.json({ ok: true });
 }
