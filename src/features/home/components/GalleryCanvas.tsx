@@ -335,8 +335,26 @@ export const GalleryCanvas = () => {
     document.addEventListener("touchmove", touchmove, { passive: false });
     document.addEventListener("touchend", touchend);
 
+    let rafId: number | null = null;
+    let isPaused = false;
+
+    const handleVisibilityChange = () => {
+      isPaused = document.hidden;
+
+      if (isPaused && rafId !== null) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      } else if (!isPaused && rafId === null) {
+        rafId = requestAnimationFrame(render);
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
     function render(now: number) {
-      if (!canvas) return;
+      rafId = null;
+
+      if (isPaused || !canvas) return;
       const t = (now - stateRef.current.startTime) / 1000;
       const s = stateRef.current;
       s.prlX += (s.tPrlX - s.prlX) * 0.048;
@@ -391,11 +409,20 @@ export const GalleryCanvas = () => {
         gl!.drawArrays(gl!.TRIANGLE_STRIP, 0, 4);
       });
 
-      requestAnimationFrame(render);
+      rafId = requestAnimationFrame(render);
     }
-    requestAnimationFrame(render);
+
+    rafId = requestAnimationFrame(render);
 
     return () => {
+      isPaused = true;
+
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("resize", resize);
       document.removeEventListener("mousemove", mousemove);
       document.removeEventListener("mousedown", mousedown);

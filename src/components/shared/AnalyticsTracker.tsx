@@ -7,24 +7,25 @@ export default function AnalyticsTracker() {
   const pathname = usePathname();
 
   useEffect(() => {
-    const track = async () => {
-      try {
-        await fetch("/api/public/stats", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            page: pathname,
-            referrer: document.referrer || null,
-            userAgent: navigator.userAgent,
-          }),
-        });
-      } catch (error) {
-        // Analytics failures are silent
-        console.warn("[Analytics] Tracking failed:", error);
-      }
-    };
+    const payload = JSON.stringify({
+      page: pathname,
+      referrer: document.referrer || null,
+      userAgent: navigator.userAgent,
+    });
 
-    track();
+    const blob = new Blob([payload], { type: "application/json" });
+
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon("/api/public/stats", blob);
+      return;
+    }
+
+    void fetch("/api/public/stats", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: payload,
+      keepalive: true,
+    }).catch(() => undefined);
   }, [pathname]);
 
   return null;

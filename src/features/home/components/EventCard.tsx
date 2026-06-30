@@ -6,6 +6,9 @@ interface EventCardProps {
   ev: Event;
   featured?: boolean;
   isArchive?: boolean;
+  hidden?: boolean;
+  deferImage?: boolean;
+  pastEventIndex?: number;
 }
 
 export const fmtDate = (date: Date | string) => {
@@ -14,19 +17,49 @@ export const fmtDate = (date: Date | string) => {
   return String(d.getDate()).padStart(2, "0") + " " + m[d.getMonth()] + " " + d.getFullYear();
 };
 
-export const EventCard = ({ ev, featured, isArchive }: EventCardProps) => (
-  <article className={`${styles.posterCard} ${isArchive ? styles.archive : ""}`}>
+const EMPTY_IMAGE =
+  "data:image/gif;base64,R0lGODlhAQABAAAAACw=";
+
+export const EventCard = ({
+  ev,
+  featured,
+  isArchive,
+  hidden,
+  deferImage,
+  pastEventIndex,
+}: EventCardProps) => (
+  <article
+    className={`${styles.posterCard} ${isArchive ? styles.archive : ""}`}
+    hidden={hidden}
+    data-past-event={pastEventIndex === undefined ? undefined : ""}
+    data-past-event-index={pastEventIndex}
+  >
     <div className={styles.posterWrap}>
       <a href={(isArchive ? ev.racoLink || ev.ticketLink : ev.ticketLink) || "#"} target="_blank" rel="noopener">
-        <Image
-          src={ev.posterUrl || "/og-image.jpg"}
-          alt={ev.title}
-          width={400}
-          height={500}
-          className={styles.poster}
-          priority={featured}
-          sizes="(max-width: 768px) 108px, (max-width: 1180px) 20vw, 13vw"
-        />
+        {deferImage ? (
+          // Deferred past-event posters are hydrated from data-src by PastEventsReveal.
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={EMPTY_IMAGE}
+            data-src={ev.posterUrl || "/og-image.jpg"}
+            alt={ev.title}
+            width={400}
+            height={500}
+            className={styles.poster}
+            loading="lazy"
+            decoding="async"
+          />
+        ) : (
+          <Image
+            src={ev.posterUrl || "/og-image.jpg"}
+            alt={ev.title}
+            width={400}
+            height={500}
+            className={styles.poster}
+            priority={featured}
+            sizes="(max-width: 768px) 108px, (max-width: 1180px) 20vw, 13vw"
+          />
+        )}
       </a>
     </div>
     {!isArchive && ev.ticketLink && (

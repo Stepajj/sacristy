@@ -1,17 +1,17 @@
 import { getPublicSettings } from "@/services/settings.service";
 import { PrivacyPageClient } from "./PrivacyPageClient";
-import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const revalidate = 3600;
+
+export const metadata = buildPageMetadata({
   title: "Privacy Policy - SACRISTY Bangkok",
   description: "Privacy policy for the SACRISTY Bangkok website.",
-  alternates: { canonical: "/privacy" },
-};
+  canonical: "/privacy",
+});
 
 export default async function PrivacyPage() {
   const settings = await getPublicSettings();
 
-  return (
-    <PrivacyPageClient settings={settings} />
-  );
+  return <PrivacyPageClient settings={settings} />;
 }

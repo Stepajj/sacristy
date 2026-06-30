@@ -21,7 +21,6 @@ interface ShellProps {
   activeSection: string;
   activeResident?: Resident | null;
   activeEvent?: Event | null;
-  residentPhotoLayers?: Resident[];
   isMobMenuOpen: boolean;
   setIsMobMenuOpen: (open: boolean) => void;
   isSignupActive: boolean;
@@ -48,7 +47,6 @@ export const Shell = ({
   activeSection,
   activeResident = null,
   activeEvent = null,
-  residentPhotoLayers = [],
   isMobMenuOpen,
   setIsMobMenuOpen,
   isSignupActive,
@@ -273,7 +271,7 @@ export const Shell = ({
   return (
     <main>
       <div className={mobStyles.mobHeader}>
-        <Link className={mobStyles.mobHeaderBrand} href="/" onClick={(e) => { e.preventDefault(); handleReset(); }}>
+        <Link className={mobStyles.mobHeaderBrand} href="/" prefetch={false} onClick={(e) => { e.preventDefault(); handleReset(); }}>
           <Image src="/logo.webp" alt="SACRISTY" width={100} height={24} className={mobStyles.mobHeaderLogo} />
         </Link>
         <button className={mobStyles.mobMenuBtn} onClick={() => setIsMobMenuOpen(true)}>Menu</button>
@@ -284,7 +282,6 @@ export const Shell = ({
           activeSection={activeSection}
           activeResident={activeResident}
           activeEvent={activeEvent}
-          residentPhotoLayers={residentPhotoLayers}
           onReset={handleReset}
           onOpenMobMenu={() => setIsMobMenuOpen(true)}
           onSignup={onSignup}

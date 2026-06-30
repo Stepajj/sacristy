@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Shell } from "@/components/layout/Shell";
 import { useRouter } from "next/navigation";
 import styles from "@/styles/Policies.module.css";
 import Link from "next/link";
+import { useCookieConsent } from "@/hooks/useCookieConsent";
 
 interface PrivacyPageClientProps {
   settings: Record<string, string>;
@@ -14,13 +15,8 @@ export function PrivacyPageClient({ settings }: PrivacyPageClientProps) {
   const [isMobMenuOpen, setIsMobMenuOpen] = useState(false);
   const [isSignupVisible, setIsSignupVisible] = useState(false);
   const [isSignupActive, setIsSignupActive] = useState(false);
-  const [cookieBannerVisible, setCookieBannerVisible] = useState(false);
+  const { visible: cookieBannerVisible, accept, decline } = useCookieConsent();
   const router = useRouter();
-
-  useEffect(() => {
-    const consent = localStorage.getItem("sacristy_cookies");
-    if (!consent) setCookieBannerVisible(true);
-  }, []);
 
   return (
     <Shell
@@ -32,15 +28,15 @@ export function PrivacyPageClient({ settings }: PrivacyPageClientProps) {
       setIsSignupVisible={setIsSignupVisible}
       setIsSignupActive={setIsSignupActive}
       cookieBannerVisible={cookieBannerVisible}
-      onAcceptCookies={() => { localStorage.setItem("sacristy_cookies", "accepted"); setCookieBannerVisible(false); }}
-      onDeclineCookies={() => { localStorage.setItem("sacristy_cookies", "declined"); setCookieBannerVisible(false); }}
+      onAcceptCookies={accept}
+      onDeclineCookies={decline}
       onReset={() => router.push("/")}
       onShowSection={(section) => router.push(`/${section}`)}
       onSignup={(e) => { e.preventDefault(); setIsSignupActive(true); setTimeout(() => setIsSignupVisible(true), 10); }}
       settings={settings}
     >
       <div style={{ maxWidth: '680px', margin: '0 auto', padding: '40px 20px' }}>
-        <Link href="/" className={styles.backBtn} style={{ marginBottom: '40px', display: 'inline-block', textDecoration: 'none' }}>
+        <Link href="/" prefetch={false} className={styles.backBtn} style={{ marginBottom: '40px', display: 'inline-block', textDecoration: 'none' }}>
           ← Back to SACRISTY
         </Link>
         
@@ -80,12 +76,12 @@ export function PrivacyPageClient({ settings }: PrivacyPageClientProps) {
 
         <div className={styles.evPolicyBlock}>
           <div className={styles.evPolicyLabel}>5. Cookies</div>
-          <p>We use cookies only with your consent. You can accept or decline via the banner on your first visit. Declining will prevent Google Analytics from loading. Your choice is saved in your browser's localStorage.</p>
+          <p>We use cookies only with your consent. You can accept or decline via the banner on your first visit. Declining will prevent Google Analytics from loading. Your choice is saved in your browser&apos;s localStorage.</p>
         </div>
 
         <div className={styles.evPolicyBlock}>
           <div className={styles.evPolicyLabel}>6. Your Rights</div>
-          <p>Under GDPR and Thailand's PDPA you have the right to:<br/>
+          <p>Under GDPR and Thailand&apos;s PDPA you have the right to:<br/>
           — Access the data we hold about you<br/>
           — Request deletion of your data<br/>
           — Withdraw consent at any time<br/><br/>

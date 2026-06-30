@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Shell } from "@/components/layout/Shell";
 import { useRouter } from "next/navigation";
 import { EventDetailView } from "@/features/home/components/EventDetailView";
+import { useCookieConsent } from "@/hooks/useCookieConsent";
 import { Event } from "@/types";
 
 interface EventDetailPageClientProps {
@@ -11,17 +12,15 @@ interface EventDetailPageClientProps {
   settings: Record<string, string>;
 }
 
-export function EventDetailPageClient({ event, settings }: EventDetailPageClientProps) {
+export function EventDetailPageClient({
+  event,
+  settings,
+}: EventDetailPageClientProps) {
   const [isMobMenuOpen, setIsMobMenuOpen] = useState(false);
   const [isSignupVisible, setIsSignupVisible] = useState(false);
   const [isSignupActive, setIsSignupActive] = useState(false);
-  const [cookieBannerVisible, setCookieBannerVisible] = useState(false);
+  const { visible: cookieBannerVisible, accept, decline } = useCookieConsent();
   const router = useRouter();
-
-  useEffect(() => {
-    const consent = localStorage.getItem("sacristy_cookies");
-    if (!consent) setCookieBannerVisible(true);
-  }, []);
 
   return (
     <Shell
@@ -34,11 +33,15 @@ export function EventDetailPageClient({ event, settings }: EventDetailPageClient
       setIsSignupVisible={setIsSignupVisible}
       setIsSignupActive={setIsSignupActive}
       cookieBannerVisible={cookieBannerVisible}
-      onAcceptCookies={() => { localStorage.setItem("sacristy_cookies", "accepted"); setCookieBannerVisible(false); }}
-      onDeclineCookies={() => { localStorage.setItem("sacristy_cookies", "declined"); setCookieBannerVisible(false); }}
+      onAcceptCookies={accept}
+      onDeclineCookies={decline}
       onReset={() => router.push("/")}
       onShowSection={(section) => router.push(`/${section}`)}
-      onSignup={(e) => { e.preventDefault(); setIsSignupActive(true); setTimeout(() => setIsSignupVisible(true), 10); }}
+      onSignup={(e) => {
+        e.preventDefault();
+        setIsSignupActive(true);
+        setTimeout(() => setIsSignupVisible(true), 10);
+      }}
       settings={settings}
     >
       <EventDetailView event={event} onBack={() => router.push("/events")} />

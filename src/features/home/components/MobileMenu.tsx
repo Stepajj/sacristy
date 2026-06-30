@@ -28,13 +28,13 @@ export const MobileMenu = ({ isOpen, onClose, activeSection, onSignup, icons, so
   <div className={`${styles.mobOverlay} ${isOpen ? styles.open : ""}`}>
     <button className={styles.mobOverlayClose} onClick={onClose}>✕ Close</button>
     <nav>
-      <Link href="/events" className={activeSection === 'events' ? styles.active : ''} onClick={onClose}>Events</Link>
-      <Link href="/residents" className={activeSection === 'residents' ? styles.active : ''} onClick={onClose}>Residents</Link>
-      <Link href="/guest-info" className={activeSection === 'guestInfo' ? styles.active : ''} onClick={onClose}>Guest Info</Link>
-      <Link href="/archive" className={activeSection === 'archive' ? styles.active : ''} onClick={onClose}>Archive</Link>
-      <Link href="/contact" className={activeSection === 'contact' ? styles.active : ''} onClick={onClose}>Contact</Link>
+      <Link href="/events" prefetch={false} className={activeSection === 'events' ? styles.active : ''} onClick={onClose}>Events</Link>
+      <Link href="/residents" prefetch={false} className={activeSection === 'residents' ? styles.active : ''} onClick={onClose}>Residents</Link>
+      <Link href="/guest-info" prefetch={false} className={activeSection === 'guestInfo' ? styles.active : ''} onClick={onClose}>Guest Info</Link>
+      <Link href="/archive" prefetch={false} className={activeSection === 'archive' ? styles.active : ''} onClick={onClose}>Archive</Link>
+      <Link href="/contact" prefetch={false} className={activeSection === 'contact' ? styles.active : ''} onClick={onClose}>Contact</Link>
       <a href="#">Shop</a>
-      <Link href="/about" onClick={onClose}>About</Link>
+      <Link href="/about" prefetch={false} onClick={onClose}>About</Link>
     </nav>
     
     <NewsletterSection onSignup={onSignup} variant="mobile" />

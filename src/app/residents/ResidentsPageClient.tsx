@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Shell } from "@/components/layout/Shell";
 import { useRouter } from "next/navigation";
 import { ResidentsSection } from "@/features/home/components/ResidentsSection";
+import { useCookieConsent } from "@/hooks/useCookieConsent";
 import { Resident, Event } from "@/types";
 
 interface ResidentsPageClientProps {
@@ -20,13 +21,8 @@ export function ResidentsPageClient({
   const [isMobMenuOpen, setIsMobMenuOpen] = useState(false);
   const [isSignupVisible, setIsSignupVisible] = useState(false);
   const [isSignupActive, setIsSignupActive] = useState(false);
-  const [cookieBannerVisible, setCookieBannerVisible] = useState(false);
+  const { visible: cookieBannerVisible, accept, decline } = useCookieConsent();
   const router = useRouter();
-
-  useEffect(() => {
-    const consent = localStorage.getItem("sacristy_cookies");
-    if (!consent) setCookieBannerVisible(true);
-  }, []);
 
   const handleSignup = (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,7 +33,6 @@ export function ResidentsPageClient({
   return (
     <Shell
       activeSection="residents"
-      residentPhotoLayers={initialResidents}
       isMobMenuOpen={isMobMenuOpen}
       setIsMobMenuOpen={setIsMobMenuOpen}
       isSignupActive={isSignupActive}
@@ -45,14 +40,8 @@ export function ResidentsPageClient({
       setIsSignupVisible={setIsSignupVisible}
       setIsSignupActive={setIsSignupActive}
       cookieBannerVisible={cookieBannerVisible}
-      onAcceptCookies={() => {
-        localStorage.setItem("sacristy_cookies", "accepted");
-        setCookieBannerVisible(false);
-      }}
-      onDeclineCookies={() => {
-        localStorage.setItem("sacristy_cookies", "declined");
-        setCookieBannerVisible(false);
-      }}
+      onAcceptCookies={accept}
+      onDeclineCookies={decline}
       onReset={() => router.push("/")}
       onShowSection={(section) => router.push(`/${section}`)}
       onSignup={handleSignup}

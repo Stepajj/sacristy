@@ -8,8 +8,9 @@ import styles from "@/styles/EventDetails.module.css";
 import compStyles from "@/styles/Events.module.css";
 import { fmtDate } from "@/features/home/components/EventCard";
 import { GuestInfoSection } from "@/features/home/components/GuestInfoSection";
+import { useCookieConsent } from "@/hooks/useCookieConsent";
 import { Event } from "@/types";
-import { motion } from "framer-motion";
+import { LazyMotion, domAnimation, m } from "framer-motion";
 
 interface EventsPageClientProps {
   upcomingEvents: Event[];
@@ -17,9 +18,10 @@ interface EventsPageClientProps {
   settings: Record<string, string>;
 }
 
-const getLineupNames = (event: Event) => event.lineup
-  ?.map(item => item.djName?.trim() || item.resident?.name)
-  .filter((name): name is string => Boolean(name));
+const getLineupNames = (event: Event) =>
+  event.lineup
+    ?.map((item) => item.djName?.trim() || item.resident?.name)
+    .filter((name): name is string => Boolean(name));
 
 const isUploadSrc = (src: string) => src.startsWith("/uploads/");
 
@@ -81,7 +83,7 @@ function AnimatedItem({
   index: number;
 }) {
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 28, filter: "blur(8px)" }}
       animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
       transition={{
@@ -91,29 +93,30 @@ function AnimatedItem({
       }}
     >
       {children}
-    </motion.div>
+    </m.div>
   );
 }
 
-export function EventsPageClient({ upcomingEvents, pastEvents, settings }: EventsPageClientProps) {
+export function EventsPageClient({
+  upcomingEvents,
+  pastEvents,
+  settings,
+}: EventsPageClientProps) {
   const [isMobMenuOpen, setIsMobMenuOpen] = useState(false);
   const [isSignupVisible, setIsSignupVisible] = useState(false);
   const [isSignupActive, setIsSignupActive] = useState(false);
-  const [cookieBannerVisible, setCookieBannerVisible] = useState(false);
   const [visiblePastCount, setVisiblePastCount] = useState(3);
   const pastListRef = useRef<HTMLDivElement>(null);
   const previousPastCount = useRef(visiblePastCount);
+  const { visible: cookieBannerVisible, accept, decline } = useCookieConsent();
   const router = useRouter();
-
-  useEffect(() => {
-    const consent = localStorage.getItem("sacristy_cookies");
-    if (!consent) setCookieBannerVisible(true);
-  }, []);
 
   useEffect(() => {
     const previousCount = previousPastCount.current;
     if (visiblePastCount > previousCount) {
-      pastListRef.current?.children.item(previousCount)?.scrollIntoView({ behavior: "smooth", block: "start" });
+      pastListRef.current?.children
+        .item(previousCount)
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
     previousPastCount.current = visiblePastCount;
   }, [visiblePastCount]);
@@ -138,32 +141,35 @@ export function EventsPageClient({ upcomingEvents, pastEvents, settings }: Event
       setIsSignupVisible={setIsSignupVisible}
       setIsSignupActive={setIsSignupActive}
       cookieBannerVisible={cookieBannerVisible}
-      onAcceptCookies={() => { localStorage.setItem("sacristy_cookies", "accepted"); setCookieBannerVisible(false); }}
-      onDeclineCookies={() => { localStorage.setItem("sacristy_cookies", "declined"); setCookieBannerVisible(false); }}
+      onAcceptCookies={accept}
+      onDeclineCookies={decline}
       onReset={() => router.push("/")}
       onShowSection={(section) => router.push(`/${section}`)}
       onSignup={handleSignup}
       settings={settings}
     >
+      <LazyMotion features={domAnimation}>
       <h1 className={compStyles.sectionTitle}>
         <span className="desk-label">Upcoming Sacristy Bangkok Events</span>
         <span className="mob-label">Upcoming Events</span>
       </h1>
 
       <div className={`${styles.eventsList} ${styles.eventsUpcomingList}`}>
-        {upcomingEvents.length > 0 ? upcomingEvents.map((ev, index) => (
-          <AnimatedItem key={ev.id} index={index}>
-            <EventRow event={ev} onNavigate={navigateToEvent} />
-          </AnimatedItem>
-        )) : (
-          <motion.p
+        {upcomingEvents.length > 0 ? (
+          upcomingEvents.map((ev, index) => (
+            <AnimatedItem key={ev.id} index={index}>
+              <EventRow event={ev} onNavigate={navigateToEvent} />
+            </AnimatedItem>
+          ))
+        ) : (
+          <m.p
             initial={{ opacity: 0, y: 18, filter: "blur(6px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             style={{ color: "rgba(255,255,255,0.3)", padding: "20px" }}
           >
             No upcoming events scheduled.
-          </motion.p>
+          </m.p>
         )}
       </div>
 
@@ -181,7 +187,7 @@ export function EventsPageClient({ upcomingEvents, pastEvents, settings }: Event
       </div>
 
       {visiblePastCount < pastEvents.length && (
-        <motion.div
+        <m.div
           className={compStyles.seeMoreWrap}
           style={{ display: "flex" }}
           initial={{ opacity: 0, y: 18, filter: "blur(6px)" }}
@@ -190,21 +196,22 @@ export function EventsPageClient({ upcomingEvents, pastEvents, settings }: Event
         >
           <button
             className={compStyles.seeMore}
-            onClick={() => setVisiblePastCount(prev => prev + 3)}
+            onClick={() => setVisiblePastCount((prev) => prev + 3)}
           >
             See More
           </button>
-        </motion.div>
+        </m.div>
       )}
 
-      <motion.div
+      <m.div
         style={{ marginTop: "40px" }}
         initial={{ opacity: 0, y: 18, filter: "blur(6px)" }}
         animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
         transition={{ duration: 0.6, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
       >
         <GuestInfoSection />
-      </motion.div>
+      </m.div>
+      </LazyMotion>
     </Shell>
   );
 }

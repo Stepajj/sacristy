@@ -99,6 +99,7 @@ export const ResidentsSection = ({ residents, activeResident, onBack, events = [
             <Link
               key={r.id}
               href={`/residents/${r.slug}`}
+              prefetch={false}
               className={styles.residentCard}
               style={{ textDecoration: "none", color: "inherit" }}
             >

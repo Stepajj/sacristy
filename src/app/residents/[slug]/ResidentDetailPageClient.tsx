@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Shell } from "@/components/layout/Shell";
 import { useRouter } from "next/navigation";
 import { ResidentsSection } from "@/features/home/components/ResidentsSection";
+import { useCookieConsent } from "@/hooks/useCookieConsent";
 import { Resident, Event } from "@/types";
 
 interface ResidentDetailPageClientProps {
@@ -12,7 +13,7 @@ interface ResidentDetailPageClientProps {
   upcomingEvents: Event[];
   settings: Record<string, string>;
 }
- 
+
 export function ResidentDetailPageClient({
   resident,
   residents,
@@ -22,10 +23,10 @@ export function ResidentDetailPageClient({
   const [isMobMenuOpen, setIsMobMenuOpen] = useState(false);
   const [isSignupVisible, setIsSignupVisible] = useState(false);
   const [isSignupActive, setIsSignupActive] = useState(false);
-  const [cookieBannerVisible, setCookieBannerVisible] = useState(false);
-const [fading, setFading] = useState(false);
-const [heroResident, setHeroResident] = useState(resident);
-const router = useRouter();
+  const [fading, setFading] = useState(false);
+  const [heroResident, setHeroResident] = useState(resident);
+  const { visible: cookieBannerVisible, accept, decline } = useCookieConsent();
+  const router = useRouter();
 
   const residentIndex = residents.findIndex((item) => item.id === resident.id);
 
@@ -40,14 +41,13 @@ const router = useRouter();
       : null;
 
   useEffect(() => {
-    const consent = localStorage.getItem("sacristy_cookies");
-    if (!consent) setCookieBannerVisible(true);
-  }, []);
+    const timer = window.setTimeout(() => {
+      setFading(false);
+      setHeroResident(resident);
+    }, 0);
 
-useEffect(() => {
-  setFading(false);
-  setHeroResident(resident);
-}, [resident]);
+    return () => window.clearTimeout(timer);
+  }, [resident]);
 
   const handleSignup = (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,26 +55,25 @@ useEffect(() => {
     setTimeout(() => setIsSignupVisible(true), 10);
   };
 
- const handleResidentNavigate = (href: string) => {
-  const slug = href.split("/").filter(Boolean).pop();
-  const targetResident = residents.find((item) => item.slug === slug);
+  const handleResidentNavigate = (href: string) => {
+    const slug = href.split("/").filter(Boolean).pop();
+    const targetResident = residents.find((item) => item.slug === slug);
 
-  if (targetResident) {
-    setHeroResident(targetResident);
-  }
+    if (targetResident) {
+      setHeroResident(targetResident);
+    }
 
-  setFading(true);
+    setFading(true);
 
-  window.setTimeout(() => {
-    router.push(href);
-  }, 280);
-};
+    window.setTimeout(() => {
+      router.push(href);
+    }, 280);
+  };
 
   return (
     <Shell
       activeSection="residents"
       activeResident={heroResident}
-      residentPhotoLayers={residents}
       isMobMenuOpen={isMobMenuOpen}
       setIsMobMenuOpen={setIsMobMenuOpen}
       isSignupActive={isSignupActive}
@@ -82,14 +81,8 @@ useEffect(() => {
       setIsSignupVisible={setIsSignupVisible}
       setIsSignupActive={setIsSignupActive}
       cookieBannerVisible={cookieBannerVisible}
-      onAcceptCookies={() => {
-        localStorage.setItem("sacristy_cookies", "accepted");
-        setCookieBannerVisible(false);
-      }}
-      onDeclineCookies={() => {
-        localStorage.setItem("sacristy_cookies", "declined");
-        setCookieBannerVisible(false);
-      }}
+      onAcceptCookies={accept}
+      onDeclineCookies={decline}
       onReset={() => router.push("/")}
       onShowSection={(section) => router.push(`/${section}`)}
       onSignup={handleSignup}
@@ -104,13 +97,13 @@ useEffect(() => {
       }
       onResidentNavigate={handleResidentNavigate}
     >
-     <ResidentsSection
-  residents={[]}
-  activeResident={resident}
-  onBack={() => router.push("/residents")}
-  events={upcomingEvents}
-  fading={fading}
-/>
+      <ResidentsSection
+        residents={[]}
+        activeResident={resident}
+        onBack={() => router.push("/residents")}
+        events={upcomingEvents}
+        fading={fading}
+      />
     </Shell>
   );
 }

@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import Link from "next/link";
 import styles from "@/styles/Archive.module.css";
@@ -31,7 +33,7 @@ export const ArchiveSection = ({ archive }: ArchiveSectionProps) => {
           .map((a, i) => {
             if (a.isResident && a.slug) {
               return (
-                <Link key={i} className={styles.archiveArtist} href={`/residents/${a.slug}`}>
+                <Link key={i} className={styles.archiveArtist} href={`/residents/${a.slug}`} prefetch={false}>
                   {a.name}
                 </Link>
               );
