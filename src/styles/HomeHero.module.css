@@ -224,6 +224,10 @@
     max-width: 160px;
   }
 
+  .logoWrapResident {
+    display: none;
+  }
+
   .leftBottom {
     font-size: 8px;
     letter-spacing: .22em;

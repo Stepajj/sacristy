@@ -279,8 +279,8 @@ export const HomeHero = ({
         </nav>
 
         <div
-          className={styles.logoWrap}
-          style={{ display: isEventDetail ? "none" : "flex" }}
+          className={`${styles.logoWrap} ${activeResident ? styles.logoWrapResident : ""}`}
+          style={{ display: isEventDetail ? "none" : undefined }}
         >
           <Image
             src="/logo.webp"
