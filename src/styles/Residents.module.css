@@ -53,7 +53,7 @@
   transition: opacity .3s ease;
 }
 
-.residentDetailFading {
+.residentDetail.residentDetailFading {
   opacity: 0;
 }
 

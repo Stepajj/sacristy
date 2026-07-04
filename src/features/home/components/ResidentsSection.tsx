@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import styles from "@/styles/Residents.module.css";
@@ -12,13 +13,28 @@ interface ResidentsSectionProps {
   residents: Resident[];
   activeResident: Resident | null;
   onBack: () => void;
+  onSelectResident?: (resident: Resident) => void;
   events?: Event[];
   fading?: boolean;
 }
 
 const isUploadSrc = (src: string) => src.startsWith("/uploads/");
 
-export const ResidentsSection = ({ residents, activeResident, onBack, events = [], fading = false }: ResidentsSectionProps) => {
+export const ResidentsSection = ({
+  residents,
+  activeResident,
+  onBack,
+  onSelectResident,
+  events = [],
+  fading = false,
+}: ResidentsSectionProps) => {
+  const pointerStartRef = useRef<{
+    slug: string;
+    x: number;
+    y: number;
+    pointerType: string;
+  } | null>(null);
+
   if (activeResident) {
     const residentEvents = events.filter(ev =>
       ev.lineup?.some(d =>
@@ -29,7 +45,12 @@ export const ResidentsSection = ({ residents, activeResident, onBack, events = [
     );
 
     return (
-      <div className={`${styles.residentDetail} ${fading ? styles.residentDetailFading : ""}`}>
+      <div
+        className={`${styles.residentDetail} ${
+          fading ? styles.residentDetailFading : ""
+        }`}
+        style={{ opacity: fading ? 0 : 1 }}
+      >
         <button className={styles.backBtn} onClick={onBack}>
           ← All Residents
         </button>
@@ -95,6 +116,73 @@ export const ResidentsSection = ({ residents, activeResident, onBack, events = [
         {residents.map((r) => {
           const photoSrc = r.photo || "/video-poster.jpg";
 
+          const openResident = () => {
+            if (!onSelectResident) return;
+            if (window.location.pathname === `/residents/${r.slug}`) return;
+
+            onSelectResident(r);
+          };
+
+          const hasModifiedClick = (
+            event:
+              | React.MouseEvent<HTMLAnchorElement>
+              | React.PointerEvent<HTMLAnchorElement>
+          ) =>
+            event.ctrlKey ||
+            event.metaKey ||
+            event.shiftKey ||
+            event.altKey;
+
+          const handlePointerDown = (
+            event: React.PointerEvent<HTMLAnchorElement>
+          ) => {
+            if (!onSelectResident) return;
+            if (event.button !== 0 || hasModifiedClick(event)) return;
+
+            pointerStartRef.current = {
+              slug: r.slug,
+              x: event.clientX,
+              y: event.clientY,
+              pointerType: event.pointerType,
+            };
+
+            if (event.pointerType === "mouse") {
+              event.preventDefault();
+              openResident();
+            }
+          };
+
+          const handlePointerUp = (
+            event: React.PointerEvent<HTMLAnchorElement>
+          ) => {
+            if (!onSelectResident) return;
+            if (hasModifiedClick(event)) return;
+
+            const start = pointerStartRef.current;
+            pointerStartRef.current = null;
+
+            if (!start || start.slug !== r.slug || start.pointerType === "mouse") {
+              return;
+            }
+
+            const moved =
+              Math.abs(event.clientX - start.x) > 8 ||
+              Math.abs(event.clientY - start.y) > 8;
+
+            if (moved) return;
+
+            event.preventDefault();
+            openResident();
+          };
+
+          const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+            if (!onSelectResident) return;
+            if (hasModifiedClick(event)) return;
+
+            event.preventDefault();
+            openResident();
+          };
+
           return (
             <Link
               key={r.id}
@@ -102,6 +190,12 @@ export const ResidentsSection = ({ residents, activeResident, onBack, events = [
               prefetch={false}
               className={styles.residentCard}
               style={{ textDecoration: "none", color: "inherit" }}
+              onPointerDown={handlePointerDown}
+              onPointerUp={handlePointerUp}
+              onPointerCancel={() => {
+                pointerStartRef.current = null;
+              }}
+              onClick={handleClick}
             >
               <Image
                 src={photoSrc}

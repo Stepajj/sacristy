@@ -7,6 +7,8 @@ import { ResidentsSection } from "@/features/home/components/ResidentsSection";
 import { useCookieConsent } from "@/hooks/useCookieConsent";
 import { Resident, Event } from "@/types";
 
+const RESIDENT_DETAIL_FADE_MS = 280;
+
 interface ResidentDetailPageClientProps {
   resident: Resident;
   residents: Resident[];
@@ -72,7 +74,16 @@ export function ResidentDetailPageClient({
       }
 
       router.push(href);
-    }, 280);
+    }, RESIDENT_DETAIL_FADE_MS);
+  };
+
+  const handleBackToResidents = () => {
+    if (fading) return;
+
+    setFading(true);
+    window.setTimeout(() => {
+      router.push("/residents");
+    }, RESIDENT_DETAIL_FADE_MS);
   };
 
   return (
@@ -105,7 +116,7 @@ export function ResidentDetailPageClient({
       <ResidentsSection
         residents={[]}
         activeResident={resident}
-        onBack={() => router.push("/residents")}
+        onBack={handleBackToResidents}
         events={upcomingEvents}
         fading={fading}
       />
