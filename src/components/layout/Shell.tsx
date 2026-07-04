@@ -30,6 +30,7 @@ interface ShellProps {
   activeSection: string;
   activeResident?: Resident | null;
   activeEvent?: Event | null;
+  eventPhotoEvents?: Event[];
   isMobMenuOpen: boolean;
   setIsMobMenuOpen: (open: boolean) => void;
   isSignupActive: boolean;
@@ -56,6 +57,7 @@ export const Shell = ({
   activeSection,
   activeResident = null,
   activeEvent = null,
+  eventPhotoEvents = [],
   isMobMenuOpen,
   setIsMobMenuOpen,
   isSignupActive,
@@ -291,6 +293,7 @@ export const Shell = ({
           activeSection={activeSection}
           activeResident={activeResident}
           activeEvent={activeEvent}
+          eventPhotoEvents={eventPhotoEvents}
           onReset={handleReset}
           onOpenMobMenu={() => setIsMobMenuOpen(true)}
           onSignup={onSignup}

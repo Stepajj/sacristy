@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Shell } from "@/components/layout/Shell";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -9,6 +9,7 @@ import styles from "@/styles/EventDetails.module.css";
 import compStyles from "@/styles/Events.module.css";
 import { fmtDate } from "@/features/home/components/EventCard";
 import { GuestInfoSection } from "@/features/home/components/GuestInfoSection";
+import { EventDetailView } from "@/features/home/components/EventDetailView";
 import { useCookieConsent } from "@/hooks/useCookieConsent";
 import { Event } from "@/types";
 import { LazyMotion, domAnimation, m } from "framer-motion";
@@ -29,7 +30,7 @@ const isUploadSrc = (src: string) => src.startsWith("/uploads/");
 interface EventRowProps {
   event: Event;
   isPast?: boolean;
-  onNavigate: (slug: string) => void;
+  onNavigate: (event: Event) => void;
 }
 
 function EventRow({ event, isPast = false, onNavigate }: EventRowProps) {
@@ -39,7 +40,7 @@ function EventRow({ event, isPast = false, onNavigate }: EventRowProps) {
   const handleClick = (clickEvent: React.MouseEvent<HTMLAnchorElement>) => {
     if (clickEvent.ctrlKey || clickEvent.metaKey || clickEvent.shiftKey) return;
     clickEvent.preventDefault();
-    onNavigate(event.slug);
+    onNavigate(event);
   };
 
   return (
@@ -108,10 +109,17 @@ export function EventsPageClient({
   const [isSignupVisible, setIsSignupVisible] = useState(false);
   const [isSignupActive, setIsSignupActive] = useState(false);
   const [visiblePastCount, setVisiblePastCount] = useState(3);
+  const [activeEvent, setActiveEvent] = useState<Event | null>(null);
   const pastListRef = useRef<HTMLDivElement>(null);
   const previousPastCount = useRef(visiblePastCount);
+  const eventsScrollPos = useRef(0);
   const { visible: cookieBannerVisible, accept, decline } = useCookieConsent();
   const router = useRouter();
+
+  const allEvents = useMemo(
+    () => [...upcomingEvents, ...pastEvents],
+    [upcomingEvents, pastEvents]
+  );
 
   useEffect(() => {
     const previousCount = previousPastCount.current;
@@ -129,13 +137,94 @@ export function EventsPageClient({
     setTimeout(() => setIsSignupVisible(true), 10);
   };
 
-  const navigateToEvent = (slug: string) => {
-    router.push(`/events/${slug}`);
+  const getPageScroll = () => {
+    if (window.matchMedia("(max-width: 768px)").matches) {
+      return window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+    }
+
+    return document.querySelector<HTMLElement>("[class*='scroll']")?.scrollTop || 0;
   };
+
+  const setPageScroll = (top: number) => {
+    if (window.matchMedia("(max-width: 768px)").matches) {
+      window.scrollTo(0, top);
+      document.documentElement.scrollTop = top;
+      document.body.scrollTop = top;
+      return;
+    }
+
+    const scroll = document.querySelector<HTMLElement>("[class*='scroll']");
+    if (scroll) scroll.scrollTop = top;
+  };
+
+  const showEventsList = (pushHistory = true, restoreScroll = eventsScrollPos.current) => {
+    setActiveEvent(null);
+
+    if (pushHistory) {
+      window.history.pushState({ page: "events", eventsScrollPos: restoreScroll }, "", "/events");
+    }
+
+    requestAnimationFrame(() => setPageScroll(restoreScroll));
+  };
+
+  const navigateToEvent = (event: Event) => {
+    const scrollPos = getPageScroll();
+    eventsScrollPos.current = scrollPos;
+
+    try {
+      window.history.replaceState({ ...window.history.state, eventsScrollPos: scrollPos }, "");
+    } catch {
+      // Mirrors legacy: scroll restoration is best-effort.
+    }
+
+    window.dispatchEvent(new window.Event("sacristy:reset-scroll"));
+    setActiveEvent(event);
+    window.history.pushState(
+      { page: "eventDetail", id: event.id, slug: event.slug, eventsScrollPos: scrollPos },
+      "",
+      `/events/${event.slug}`,
+    );
+  };
+
+  useEffect(() => {
+    const syncFromPath = (state?: unknown) => {
+      const path = window.location.pathname;
+
+      if (path === "/events") {
+        const restoreScroll =
+          typeof state === "object" && state && "eventsScrollPos" in state
+            ? Number((state as { eventsScrollPos?: number }).eventsScrollPos) || 0
+            : eventsScrollPos.current;
+        showEventsList(false, restoreScroll);
+        return;
+      }
+
+      const match = path.match(/^\/events\/([^/?#]+)/);
+      if (!match) return;
+
+      const event = allEvents.find((item) => item.slug === decodeURIComponent(match[1]));
+      if (!event) return;
+
+      window.dispatchEvent(new window.Event("sacristy:reset-scroll"));
+      setActiveEvent(event);
+    };
+
+    window.history.replaceState(
+      { ...window.history.state, page: "events", eventsScrollPos: eventsScrollPos.current },
+      "",
+    );
+
+    const handlePopState = (event: PopStateEvent) => syncFromPath(event.state);
+    window.addEventListener("popstate", handlePopState);
+
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [allEvents]);
 
   return (
     <Shell
       activeSection="events"
+      activeEvent={activeEvent}
+      eventPhotoEvents={allEvents}
       isMobMenuOpen={isMobMenuOpen}
       setIsMobMenuOpen={setIsMobMenuOpen}
       isSignupActive={isSignupActive}
@@ -150,7 +239,10 @@ export function EventsPageClient({
       onSignup={handleSignup}
       settings={settings}
     >
-      <LazyMotion features={domAnimation}>
+      {activeEvent ? (
+        <EventDetailView event={activeEvent} onBack={() => showEventsList()} />
+      ) : (
+        <LazyMotion features={domAnimation}>
       <h1 className={compStyles.sectionTitle}>
         <span className="desk-label">Upcoming Sacristy Bangkok Events</span>
         <span className="mob-label">Upcoming Events</span>
@@ -213,7 +305,8 @@ export function EventsPageClient({
       >
         <GuestInfoSection />
       </m.div>
-      </LazyMotion>
+        </LazyMotion>
+      )}
     </Shell>
   );
 }

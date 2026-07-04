@@ -13,6 +13,7 @@ interface HomeHeroProps {
   activeSection: string;
   activeResident: Resident | null;
   activeEvent: Event | null;
+  eventPhotoEvents?: Event[];
   onReset: () => void;
   onOpenMobMenu: () => void;
   onSignup: (e: React.FormEvent) => void;
@@ -49,6 +50,7 @@ export const HomeHero = ({
   activeSection,
   activeResident,
   activeEvent,
+  eventPhotoEvents = [],
   onReset,
   onOpenMobMenu,
   onSignup,
@@ -57,6 +59,7 @@ export const HomeHero = ({
 }: HomeHeroProps) => {
   const isEventDetail = !!activeEvent;
   const hasPhotoOverlay = !!(activeResident || activeEvent);
+  const hasPrebuiltEventLayers = eventPhotoEvents.length > 0;
   const videoRef = useRef<HTMLVideoElement>(null);
   const lastSavedAtRef = useRef(0);
   const [shouldLoadVideo, setShouldLoadVideo] = useState(!hasPhotoOverlay);
@@ -194,9 +197,9 @@ export const HomeHero = ({
         current: activeEvent,
         previous: state.current,
         sequence: state.sequence + 1,
-        currentActive: Boolean(state.current),
+        currentActive: false,
         previousActive: Boolean(state.current),
-        currentSettled: Boolean(state.current),
+        currentSettled: false,
       };
     });
 
@@ -227,7 +230,7 @@ export const HomeHero = ({
               ...state,
               previous: null,
               previousActive: false,
-              currentSettled: Boolean(state.current),
+              currentSettled: false,
             }
           : state
       );
@@ -457,7 +460,31 @@ export const HomeHero = ({
         </div>
       )}
 
-      {eventPhotoState.current && (
+      {hasPrebuiltEventLayers &&
+        eventPhotoEvents.map((event) => {
+          const posterSrc = event.posterUrl || "/og-image.jpg";
+
+          return (
+            <div
+              key={`event-prebuilt-${event.id}`}
+              className={`${styles.photoLayer} ${
+                activeEvent?.id === event.id ? styles.photoLayerActive : ""
+              }`}
+            >
+              <Image
+                src={posterSrc}
+                alt={event.title}
+                fill
+                sizes="(max-width: 1024px) 100vw, 60vw"
+                className={styles.eventPhoto}
+                unoptimized={isUploadSrc(posterSrc)}
+              />
+              <div className={styles.eventPhotoOverlay} />
+            </div>
+          );
+        })}
+
+      {!hasPrebuiltEventLayers && eventPhotoState.current && (
         <div
           key={`event-current-${eventPhotoState.current.id}-${eventPhotoState.sequence}`}
           className={`${styles.photoLayer} ${
@@ -465,7 +492,6 @@ export const HomeHero = ({
           }`}
           style={{
             opacity: eventPhotoState.currentActive ? 1 : 0,
-            transition: eventPhotoState.currentSettled ? "none" : undefined,
           }}
         >
           <Image
@@ -480,7 +506,7 @@ export const HomeHero = ({
         </div>
       )}
 
-      {eventPhotoState.previous && (
+      {!hasPrebuiltEventLayers && eventPhotoState.previous && (
         <div
           key={`event-prev-${eventPhotoState.previous.id}-${eventPhotoState.sequence}`}
           className={`${styles.photoLayer} ${
