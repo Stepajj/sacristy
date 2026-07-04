@@ -40,23 +40,32 @@ const analyticsScript = `
     }).catch(() => undefined);
   };
 
+  const scheduleTrack = () => {
+    if ("requestIdleCallback" in window) {
+      requestIdleCallback(track, { timeout: 2000 });
+      return;
+    }
+
+    setTimeout(track, 0);
+  };
+
   const wrapHistory = (method) => {
     const original = history[method];
     history[method] = function sacristyHistoryWrapper() {
       const result = original.apply(this, arguments);
-      queueMicrotask(track);
+      queueMicrotask(scheduleTrack);
       return result;
     };
   };
 
   wrapHistory("pushState");
   wrapHistory("replaceState");
-  window.addEventListener("popstate", track);
+  window.addEventListener("popstate", scheduleTrack);
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", track, { once: true });
+    document.addEventListener("DOMContentLoaded", scheduleTrack, { once: true });
   } else {
-    track();
+    scheduleTrack();
   }
 })();
 `;
@@ -169,8 +178,8 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
         />
-        <script dangerouslySetInnerHTML={{ __html: analyticsScript }} />
         {children}
+        <script dangerouslySetInnerHTML={{ __html: analyticsScript }} />
       </body>
     </html>
   );

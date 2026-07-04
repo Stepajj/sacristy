@@ -24,8 +24,26 @@ interface HomeHeroProps {
 }
 
 const VIDEO_TIME_KEY = "sacristy_bg_video_time";
+const VIDEO_LOAD_DELAY_MS = 900;
+const PREVIOUS_RESIDENT_PHOTO_KEY = "sacristy_previous_resident_photo";
 
 const isUploadSrc = (src: string) => src.startsWith("/uploads/");
+
+const getStoredPreviousResident = (activeResident: Resident | null) => {
+  if (!activeResident || typeof window === "undefined") return null;
+
+  const stored = sessionStorage.getItem(PREVIOUS_RESIDENT_PHOTO_KEY);
+  if (!stored) return null;
+
+  sessionStorage.removeItem(PREVIOUS_RESIDENT_PHOTO_KEY);
+
+  try {
+    const parsed = JSON.parse(stored) as Resident;
+    return parsed.id !== activeResident.id ? parsed : null;
+  } catch {
+    return null;
+  }
+};
 
 export const HomeHero = ({
   activeSection,
@@ -41,24 +59,223 @@ export const HomeHero = ({
   const hasPhotoOverlay = !!(activeResident || activeEvent);
   const videoRef = useRef<HTMLVideoElement>(null);
   const lastSavedAtRef = useRef(0);
+  const [shouldLoadVideo, setShouldLoadVideo] = useState(!hasPhotoOverlay);
   const [videoReady, setVideoReady] = useState(false);
+  const [residentPhotoState, setResidentPhotoState] = useState<{
+    current: Resident | null;
+    previous: Resident | null;
+    sequence: number;
+    currentActive: boolean;
+    previousActive: boolean;
+    currentSettled: boolean;
+  }>(() => {
+    const previous = getStoredPreviousResident(activeResident);
+
+    return {
+      current: activeResident,
+      previous,
+      sequence: previous ? 1 : 0,
+      currentActive: Boolean(previous),
+      previousActive: Boolean(previous),
+      currentSettled: Boolean(previous),
+    };
+  });
+  const [eventPhotoState, setEventPhotoState] = useState<{
+    current: Event | null;
+    previous: Event | null;
+    sequence: number;
+    currentActive: boolean;
+    previousActive: boolean;
+    currentSettled: boolean;
+  }>({
+    current: activeEvent,
+    previous: null,
+    sequence: 0,
+    currentActive: false,
+    previousActive: false,
+    currentSettled: false,
+  });
 
   const eventPoster = activeEvent?.posterUrl || "/og-image.jpg";
+
+  useEffect(() => {
+    let frame: number | null = null;
+    let activationFallback: number | null = null;
+    let timer: number | null = null;
+
+    setResidentPhotoState((state) => {
+      if (!activeResident) {
+        return {
+          current: null,
+          previous: state.current,
+          sequence: state.sequence,
+          currentActive: false,
+          previousActive: Boolean(state.current),
+          currentSettled: false,
+        };
+      }
+
+      if (state.current?.id === activeResident.id) {
+        return { ...state, current: activeResident };
+      }
+
+      return {
+        current: activeResident,
+        previous: state.current,
+        sequence: state.sequence + 1,
+        currentActive: Boolean(state.current),
+        previousActive: Boolean(state.current),
+        currentSettled: Boolean(state.current),
+      };
+    });
+
+    const activateResidentLayers = () => {
+      setResidentPhotoState((state) => {
+        if (!activeResident) {
+          return { ...state, currentActive: false, previousActive: false };
+        }
+
+        if (state.current?.id !== activeResident.id) return state;
+
+        return {
+          ...state,
+          currentActive: true,
+          previousActive: false,
+          currentSettled: false,
+        };
+      });
+    };
+
+    frame = requestAnimationFrame(activateResidentLayers);
+    activationFallback = window.setTimeout(activateResidentLayers, 20);
+
+    timer = window.setTimeout(() => {
+      setResidentPhotoState((state) =>
+        !activeResident || state.current?.id === activeResident.id
+          ? {
+              ...state,
+              previous: null,
+              previousActive: false,
+              currentSettled: Boolean(state.current),
+            }
+          : state
+      );
+    }, 520);
+
+    return () => {
+      if (frame !== null) cancelAnimationFrame(frame);
+      if (activationFallback !== null) window.clearTimeout(activationFallback);
+      if (timer !== null) window.clearTimeout(timer);
+    };
+  }, [activeResident]);
+
+  useEffect(() => {
+    let frame: number | null = null;
+    let activationFallback: number | null = null;
+    let timer: number | null = null;
+
+    setEventPhotoState((state) => {
+      if (!activeEvent) {
+        return {
+          current: null,
+          previous: state.current,
+          sequence: state.sequence,
+          currentActive: false,
+          previousActive: Boolean(state.current),
+          currentSettled: false,
+        };
+      }
+
+      if (state.current?.id === activeEvent.id) {
+        return { ...state, current: activeEvent };
+      }
+
+      return {
+        current: activeEvent,
+        previous: state.current,
+        sequence: state.sequence + 1,
+        currentActive: Boolean(state.current),
+        previousActive: Boolean(state.current),
+        currentSettled: Boolean(state.current),
+      };
+    });
+
+    const activateEventLayers = () => {
+      setEventPhotoState((state) => {
+        if (!activeEvent) {
+          return { ...state, currentActive: false, previousActive: false };
+        }
+
+        if (state.current?.id !== activeEvent.id) return state;
+
+        return {
+          ...state,
+          currentActive: true,
+          previousActive: false,
+          currentSettled: false,
+        };
+      });
+    };
+
+    frame = requestAnimationFrame(activateEventLayers);
+    activationFallback = window.setTimeout(activateEventLayers, 20);
+
+    timer = window.setTimeout(() => {
+      setEventPhotoState((state) =>
+        !activeEvent || state.current?.id === activeEvent.id
+          ? {
+              ...state,
+              previous: null,
+              previousActive: false,
+              currentSettled: Boolean(state.current),
+            }
+          : state
+      );
+    }, 520);
+
+    return () => {
+      if (frame !== null) cancelAnimationFrame(frame);
+      if (activationFallback !== null) window.clearTimeout(activationFallback);
+      if (timer !== null) window.clearTimeout(timer);
+    };
+  }, [activeEvent]);
+
+  useEffect(() => {
+    if (hasPhotoOverlay || shouldLoadVideo) return;
+
+    let timeoutId: number | null = null;
+    const frameId = requestAnimationFrame(() => {
+      timeoutId = window.setTimeout(() => {
+        setShouldLoadVideo(true);
+      }, VIDEO_LOAD_DELAY_MS);
+    });
+
+    return () => {
+      cancelAnimationFrame(frameId);
+      if (timeoutId !== null) window.clearTimeout(timeoutId);
+    };
+  }, [hasPhotoOverlay, shouldLoadVideo]);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    const savedTime = sessionStorage.getItem(VIDEO_TIME_KEY);
-
-    if (savedTime) {
+    const restoreTime = () => {
+      const savedTime = sessionStorage.getItem(VIDEO_TIME_KEY);
+      if (!savedTime) return;
       const time = Number(savedTime);
       if (!Number.isNaN(time)) {
         video.currentTime = time;
       }
+    };
+
+    if (shouldLoadVideo) {
+      restoreTime();
     }
 
     const saveTime = (force = false) => {
+      if (!shouldLoadVideo || !video.currentSrc) return;
+
       const now = performance.now();
 
       if (!force && now - lastSavedAtRef.current < 2000) {
@@ -72,15 +289,21 @@ export const HomeHero = ({
     const restartVideo = () => {
       sessionStorage.removeItem(VIDEO_TIME_KEY);
       lastSavedAtRef.current = 0;
+      setShouldLoadVideo(true);
       setVideoReady(false);
 
-      video.pause();
-      video.currentTime = 0;
-      video.load();
+      window.setTimeout(() => {
+        const currentVideo = videoRef.current;
+        if (!currentVideo) return;
 
-      if (!hasPhotoOverlay) {
-        void video.play().catch(() => undefined);
-      }
+        currentVideo.pause();
+        currentVideo.currentTime = 0;
+        currentVideo.load();
+
+        if (!hasPhotoOverlay) {
+          void currentVideo.play().catch(() => undefined);
+        }
+      }, 0);
     };
 
     const handleVisibilityChange = () => {
@@ -90,7 +313,7 @@ export const HomeHero = ({
         return;
       }
 
-      if (!hasPhotoOverlay) {
+      if (shouldLoadVideo && !hasPhotoOverlay) {
         void video.play().catch(() => undefined);
       }
     };
@@ -99,6 +322,7 @@ export const HomeHero = ({
     const handlePause = () => saveTime(true);
     const handleTimeUpdate = () => saveTime(false);
 
+    video.addEventListener("loadedmetadata", restoreTime);
     video.addEventListener("timeupdate", handleTimeUpdate);
     video.addEventListener("pause", handlePause);
     window.addEventListener("pagehide", handlePageHide);
@@ -107,17 +331,20 @@ export const HomeHero = ({
 
     return () => {
       saveTime(true);
+      video.removeEventListener("loadedmetadata", restoreTime);
       video.removeEventListener("timeupdate", handleTimeUpdate);
       video.removeEventListener("pause", handlePause);
       window.removeEventListener("pagehide", handlePageHide);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("sacristy:restart-video", restartVideo);
     };
-  }, [hasPhotoOverlay]);
+  }, [hasPhotoOverlay, shouldLoadVideo]);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
+
+    if (!shouldLoadVideo) return;
 
     if (hasPhotoOverlay || document.hidden) {
       video.pause();
@@ -125,7 +352,7 @@ export const HomeHero = ({
     }
 
     void video.play().catch(() => undefined);
-  }, [hasPhotoOverlay]);
+  }, [hasPhotoOverlay, shouldLoadVideo]);
 
   const handleViewEvents = (event: React.MouseEvent<HTMLAnchorElement>) => {
     if (activeSection !== "home") return;
@@ -148,20 +375,28 @@ export const HomeHero = ({
   };
 
   return (
-    <section className={styles.left} data-scroll-panel="left">
+    <section
+      className={`${styles.left} ${activeResident ? styles.leftResident : ""}`}
+      data-scroll-panel="left"
+    >
       <video
         ref={videoRef}
-        autoPlay={!hasPhotoOverlay}
+        autoPlay={shouldLoadVideo && !hasPhotoOverlay}
         muted
         loop
         playsInline
+        preload={shouldLoadVideo ? "auto" : "none"}
         poster="/video-poster.jpg"
         style={{ opacity: hasPhotoOverlay ? 0 : 1 }}
         onLoadedData={() => setVideoReady(true)}
         onCanPlay={() => setVideoReady(true)}
       >
-        <source src="/party-video.webm" type="video/webm" />
-        <source src="/party-video.mp4" type="video/mp4" />
+        {shouldLoadVideo && (
+          <>
+            <source src="/party-video.webm" type="video/webm" />
+            <source src="/party-video.mp4" type="video/mp4" />
+          </>
+        )}
       </video>
 
       {!hasPhotoOverlay && (
@@ -177,30 +412,89 @@ export const HomeHero = ({
         />
       )}
 
-      {activeResident && !activeEvent && (
-        <div className={`${styles.photoLayer} ${styles.photoLayerActive}`}>
+      {residentPhotoState.current && !activeEvent && (
+        <div
+          key={`resident-current-${residentPhotoState.current.id}-${residentPhotoState.sequence}`}
+          className={`${styles.photoLayer} ${
+            residentPhotoState.currentActive ? styles.photoLayerActive : ""
+          }`}
+          style={{
+            opacity: residentPhotoState.currentActive ? 1 : 0,
+            transition: residentPhotoState.currentSettled ? "none" : undefined,
+          }}
+        >
           <Image
-            src={activeResident.photo || "/video-poster.jpg"}
-            alt={activeResident.name}
+            src={residentPhotoState.current.photo || "/video-poster.jpg"}
+            alt={residentPhotoState.current.name}
             fill
             sizes="(max-width: 1024px) 100vw, 60vw"
             className={styles.residentPhoto}
-            unoptimized={isUploadSrc(activeResident.photo || "")}
+            unoptimized={isUploadSrc(residentPhotoState.current.photo || "")}
             priority
           />
           <div className={styles.photoOverlay} />
         </div>
       )}
 
-      {activeEvent && (
-        <div className={`${styles.photoLayer} ${styles.photoLayerActive}`}>
+      {residentPhotoState.previous && !activeEvent && (
+        <div
+          key={`resident-prev-${residentPhotoState.previous.id}-${residentPhotoState.sequence}`}
+          className={`${styles.photoLayer} ${
+            residentPhotoState.previousActive ? styles.photoLayerActive : ""
+          }`}
+          style={{ opacity: residentPhotoState.previousActive ? 1 : 0 }}
+        >
           <Image
-            src={eventPoster}
-            alt={activeEvent.title}
+            src={residentPhotoState.previous.photo || "/video-poster.jpg"}
+            alt={residentPhotoState.previous.name}
+            fill
+            sizes="(max-width: 1024px) 100vw, 60vw"
+            className={styles.residentPhoto}
+            unoptimized={isUploadSrc(residentPhotoState.previous.photo || "")}
+            priority
+          />
+          <div className={styles.photoOverlay} />
+        </div>
+      )}
+
+      {eventPhotoState.current && (
+        <div
+          key={`event-current-${eventPhotoState.current.id}-${eventPhotoState.sequence}`}
+          className={`${styles.photoLayer} ${
+            eventPhotoState.currentActive ? styles.photoLayerActive : ""
+          }`}
+          style={{
+            opacity: eventPhotoState.currentActive ? 1 : 0,
+            transition: eventPhotoState.currentSettled ? "none" : undefined,
+          }}
+        >
+          <Image
+            src={eventPhotoState.current.posterUrl || eventPoster}
+            alt={eventPhotoState.current.title}
             fill
             sizes="(max-width: 1024px) 100vw, 60vw"
             className={styles.eventPhoto}
-            unoptimized={isUploadSrc(eventPoster)}
+            unoptimized={isUploadSrc(eventPhotoState.current.posterUrl || "")}
+          />
+          <div className={styles.eventPhotoOverlay} />
+        </div>
+      )}
+
+      {eventPhotoState.previous && (
+        <div
+          key={`event-prev-${eventPhotoState.previous.id}-${eventPhotoState.sequence}`}
+          className={`${styles.photoLayer} ${
+            eventPhotoState.previousActive ? styles.photoLayerActive : ""
+          }`}
+          style={{ opacity: eventPhotoState.previousActive ? 1 : 0 }}
+        >
+          <Image
+            src={eventPhotoState.previous.posterUrl || "/og-image.jpg"}
+            alt={eventPhotoState.previous.title}
+            fill
+            sizes="(max-width: 1024px) 100vw, 60vw"
+            className={styles.eventPhoto}
+            unoptimized={isUploadSrc(eventPhotoState.previous.posterUrl || "")}
           />
           <div className={styles.eventPhotoOverlay} />
         </div>
@@ -278,10 +572,7 @@ export const HomeHero = ({
           </Link>
         </nav>
 
-        <div
-          className={`${styles.logoWrap} ${activeResident ? styles.logoWrapResident : ""}`}
-          style={{ display: isEventDetail ? "none" : undefined }}
-        >
+        <div className={styles.logoWrap} style={{ display: isEventDetail ? "none" : undefined }}>
           <Image
             src="/logo.webp"
             alt="Sacristy logo"
@@ -353,6 +644,12 @@ export const HomeHero = ({
         )}
 
         {!isEventDetail && <NewsletterSection onSignup={onSignup} variant="block" />}
+
+        {!isEventDetail && activeResident && (
+          <div className={`${styles.leftBottom} ${styles.residentDesktopBottom}`}>
+            Hard techno &bull; Bangkok &bull; Underground
+          </div>
+        )}
 
         {!isEventDetail && !activeResident && (
           <div className={styles.mobileHeroBottom}>

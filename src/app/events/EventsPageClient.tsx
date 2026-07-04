@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { Shell } from "@/components/layout/Shell";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import styles from "@/styles/EventDetails.module.css";
 import compStyles from "@/styles/Events.module.css";
 import { fmtDate } from "@/features/home/components/EventCard";
@@ -42,8 +43,9 @@ function EventRow({ event, isPast = false, onNavigate }: EventRowProps) {
   };
 
   return (
-    <a
+    <Link
       href={href}
+      prefetch
       className={`${styles.evRow} ${isPast ? styles.evRowPast : ""}`}
       onClick={handleClick}
     >
@@ -71,7 +73,7 @@ function EventRow({ event, isPast = false, onNavigate }: EventRowProps) {
       </div>
 
       <div className={styles.evPlus}>+</div>
-    </a>
+    </Link>
   );
 }
 

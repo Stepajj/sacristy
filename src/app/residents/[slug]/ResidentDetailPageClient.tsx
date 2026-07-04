@@ -56,16 +56,21 @@ export function ResidentDetailPageClient({
   };
 
   const handleResidentNavigate = (href: string) => {
+    if (fading) return;
+
     const slug = href.split("/").filter(Boolean).pop();
     const targetResident = residents.find((item) => item.slug === slug);
-
-    if (targetResident) {
-      setHeroResident(targetResident);
-    }
 
     setFading(true);
 
     window.setTimeout(() => {
+      if (targetResident) {
+        sessionStorage.setItem(
+          "sacristy_previous_resident_photo",
+          JSON.stringify(heroResident),
+        );
+      }
+
       router.push(href);
     }, 280);
   };

@@ -12,6 +12,7 @@ export const metadata = buildPageMetadata({
 export default function AboutPage() {
   return (
     <main className={styles.about}>
+      <h1 className="sr-only">About SACRISTY Bangkok</h1>
       <GalleryCanvas />
 
       <nav className={styles.navigation} aria-label="About navigation">

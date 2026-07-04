@@ -164,6 +164,10 @@
   display: contents;
 }
 
+.residentDesktopBottom {
+  display: block;
+}
+
 .residentMobileLogo,
 .residentMobileNav,
 .residentMobileBottom {
@@ -224,7 +228,7 @@
     max-width: 160px;
   }
 
-  .logoWrapResident {
+  .leftResident .logoWrap {
     display: none;
   }
 
@@ -240,6 +244,10 @@
     align-items: center;
     justify-content: center;
     width: 100%;
+  }
+
+  .residentDesktopBottom {
+    display: none;
   }
 
   .residentMobileLogo img {

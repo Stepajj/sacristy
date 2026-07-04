@@ -1,12 +1,11 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
+import dynamic from "next/dynamic";
 import styles from "@/styles/Shell.module.css";
 import { HomeHero } from "@/features/home/components/HomeHero";
-import { MobileMenu } from "@/features/home/components/MobileMenu";
 import { MobileBar } from "@/features/home/components/MobileBar";
 import { CookieBanner } from "@/features/home/components/CookieBanner";
-import { SuccessModal } from "@/features/home/components/SuccessModal";
 import { ICONS } from "@/features/home/components/SocialIcons";
 import { Resident } from "@/types/resident";
 import { Event } from "@/types/event";
@@ -15,6 +14,16 @@ import Link from "next/link";
 import mobStyles from "@/styles/Mobile.module.css";
 import { NewsletterSection } from "@/features/home/components/NewsletterSection";
 import { usePathname } from "next/navigation";
+
+const MobileMenu = dynamic(
+  () => import("@/features/home/components/MobileMenu").then((mod) => mod.MobileMenu),
+  { ssr: false },
+);
+
+const SuccessModal = dynamic(
+  () => import("@/features/home/components/SuccessModal").then((mod) => mod.SuccessModal),
+  { ssr: false },
+);
 
 interface ShellProps {
   children: React.ReactNode;
@@ -311,26 +320,30 @@ export const Shell = ({
         </section>
       </div>
 
-      <MobileMenu
-        isOpen={isMobMenuOpen}
-        onClose={() => setIsMobMenuOpen(false)}
-        activeSection={activeSection}
-        onShowSection={onShowSection}
-        onSignup={onSignup}
-        icons={ICONS}
-        socials={socials}
-      />
+      {isMobMenuOpen && (
+        <MobileMenu
+          isOpen={isMobMenuOpen}
+          onClose={() => setIsMobMenuOpen(false)}
+          activeSection={activeSection}
+          onShowSection={onShowSection}
+          onSignup={onSignup}
+          icons={ICONS}
+          socials={socials}
+        />
+      )}
 
       <MobileBar activeSection={activeSection} socials={socials} />
 
-      <SuccessModal
-        isActive={isSignupActive}
-        isVisible={isSignupVisible}
-        onClose={() => {
-          setIsSignupVisible(false);
-          setTimeout(() => setIsSignupActive(false), 400);
-        }}
-      />
+      {isSignupActive && (
+        <SuccessModal
+          isActive={isSignupActive}
+          isVisible={isSignupVisible}
+          onClose={() => {
+            setIsSignupVisible(false);
+            setTimeout(() => setIsSignupActive(false), 400);
+          }}
+        />
+      )}
 
       <CookieBanner
         isVisible={cookieBannerVisible}

@@ -54,7 +54,9 @@ export const buildPageMetadata = ({
   const absoluteImage = toAbsoluteUrl(image);
 
   return {
-    title,
+    title: {
+      absolute: title,
+    },
     description,
     alternates: { canonical },
     robots,

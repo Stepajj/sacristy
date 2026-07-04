@@ -117,6 +117,11 @@
   filter: none;
 }
 
+.eventsDetailView {
+  opacity: 1;
+  transition: opacity .3s ease;
+}
+
 .evDetailTitle {
   font-family: 'Bebas Neue', sans-serif;
   font-size: 48px;
