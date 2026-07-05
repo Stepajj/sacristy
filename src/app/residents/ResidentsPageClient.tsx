@@ -25,6 +25,8 @@ export function ResidentsPageClient({
   const [isSignupActive, setIsSignupActive] = useState(false);
   const [activeResident, setActiveResident] = useState<Resident | null>(null);
   const [fading, setFading] = useState(false);
+  const [isClosingToList, setIsClosingToList] = useState(false);
+  const activeResidentRef = useRef<Resident | null>(null);
   const listFadeTimerRef = useRef<number | null>(null);
   const { visible: cookieBannerVisible, accept, decline } = useCookieConsent();
   const router = useRouter();
@@ -51,6 +53,8 @@ export function ResidentsPageClient({
       : null;
 
   const openResident = (resident: Resident) => {
+    activeResidentRef.current = resident;
+    setIsClosingToList(false);
     setFading(false);
     setActiveResident(resident);
     window.dispatchEvent(new window.Event("sacristy:reset-scroll"));
@@ -66,6 +70,8 @@ export function ResidentsPageClient({
 
     const finish = () => {
       listFadeTimerRef.current = null;
+      activeResidentRef.current = null;
+      setIsClosingToList(false);
       setFading(false);
       setActiveResident(null);
 
@@ -74,7 +80,8 @@ export function ResidentsPageClient({
       }
     };
 
-    if (activeResident && animate) {
+    if (activeResidentRef.current && animate) {
+      setIsClosingToList(true);
       setFading(true);
       listFadeTimerRef.current = window.setTimeout(
         finish,
@@ -83,6 +90,8 @@ export function ResidentsPageClient({
       return;
     }
 
+    activeResidentRef.current = null;
+    setIsClosingToList(false);
     setFading(false);
     setActiveResident(null);
 
@@ -103,6 +112,7 @@ export function ResidentsPageClient({
     }
 
     setFading(true);
+    setIsClosingToList(false);
 
     window.setTimeout(() => {
       if (activeResident) {
@@ -113,6 +123,8 @@ export function ResidentsPageClient({
       }
 
       window.dispatchEvent(new window.Event("sacristy:reset-scroll"));
+      setIsClosingToList(false);
+      activeResidentRef.current = targetResident;
       setActiveResident(targetResident);
       setFading(false);
       window.history.pushState(
@@ -140,6 +152,8 @@ export function ResidentsPageClient({
       );
       if (!resident) return;
 
+      activeResidentRef.current = resident;
+      setIsClosingToList(false);
       setFading(false);
       setActiveResident(resident);
     };
@@ -172,7 +186,7 @@ export function ResidentsPageClient({
   return (
     <Shell
       activeSection="residents"
-      activeResident={activeResident}
+      activeResident={isClosingToList ? null : activeResident}
       isMobMenuOpen={isMobMenuOpen}
       setIsMobMenuOpen={setIsMobMenuOpen}
       isSignupActive={isSignupActive}
@@ -187,7 +201,7 @@ export function ResidentsPageClient({
       onSignup={handleSignup}
       settings={settings}
       residentNavigation={
-        activeResident && previousResident && nextResident
+        activeResident && !isClosingToList && previousResident && nextResident
           ? {
               previousHref: `/residents/${previousResident.slug}`,
               nextHref: `/residents/${nextResident.slug}`,
