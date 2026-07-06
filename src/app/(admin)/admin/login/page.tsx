@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import styles from "./Login.module.css";
 
 export default function AdminLoginPage() {
@@ -9,7 +8,6 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,12 +19,14 @@ export default function AdminLoginPage() {
         method: "POST",
         body: JSON.stringify({ email, password }),
         headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
       });
 
       const result = await res.json();
 
       if (result.success) {
-        router.push("/admin");
+        window.location.assign("/admin");
+        return;
       } else {
         setError(result.error || "Invalid credentials");
       }
