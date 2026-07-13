@@ -87,6 +87,19 @@ void main(){
 
 const VS_FULL = `attribute vec2 a_pos; void main(){ gl_Position = vec4(a_pos,0,1); }`;
 
+type PhotoTile = {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  src: string;
+  alpha: number;
+  targetAlpha: number;
+  bright: number;
+  delay: number;
+  revealAt?: number;
+};
+
 export const GalleryCanvas = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const curRef = useRef<HTMLDivElement>(null);
@@ -96,7 +109,7 @@ export const GalleryCanvas = () => {
     prlX: 0, prlY: 0, tPrlX: 0, tPrlY: 0,
     mx: 0, my: 0, drag: false, smx: 0, smy: 0, scx: 0, scy: 0,
     startTime: 0,
-    tileCache: new Map<string, any[]>(),
+    tileCache: new Map<string, PhotoTile[]>(),
     texCache: new Map<string, { tex: WebGLTexture | null, loaded: boolean }>(),
   });
 
@@ -199,7 +212,7 @@ export const GalleryCanvas = () => {
     function getTile(tx: number, ty: number) {
       const k = `${tx},${ty}`;
       if (tileCache.has(k)) return tileCache.get(k)!;
-      const photos: any[] = [];
+      const photos: PhotoTile[] = [];
       if (rng(tx, ty, 0) < 0.40) { tileCache.set(k, photos); return photos; }
       const si = Math.floor(rng(tx, ty, 1) * SIZES.length);
       const [w, h] = SIZES[si];
@@ -377,7 +390,7 @@ export const GalleryCanvas = () => {
       const tx0 = Math.floor(wx0 / TILE) - MARGIN, ty0 = Math.floor(wy0 / TILE) - MARGIN;
       const tx1 = Math.ceil((wx0 + vw / s.camS) / TILE) + MARGIN, ty1 = Math.ceil((wy0 + vh / s.camS) / TILE) + MARGIN;
       
-      const vis: any[] = [];
+      const vis: PhotoTile[] = [];
       for (let tx = tx0; tx <= tx1; tx++) {
         for (let ty = ty0; ty <= ty1; ty++) {
           getTile(tx, ty).forEach(p => vis.push(p));

@@ -1,38 +1,49 @@
 .uploadContainer {
-  margin-bottom: 1.5rem;
+  margin-bottom: 0;
 }
 
-.label {
+.label,
+.smallLabel {
   display: block;
-  font-family: var(--font-ibm-mono);
-  font-size: 0.75rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
+  margin-bottom: 6px;
   color: #888;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
 }
 
 .dropzone {
-  border: 2px dashed #333;
-  padding: 2rem;
-  text-align: center;
+  display: flex;
+  min-height: 180px;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed rgba(220, 220, 220, 0.16);
+  background: #1a1a1a;
+  color: #888;
   cursor: pointer;
-  font-family: var(--font-ibm-mono);
-  font-size: 0.875rem;
-  transition: all 0.2s ease;
-  background: rgba(255, 255, 255, 0.02);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-align: center;
+  text-transform: uppercase;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
 }
 
 .dropzone:hover {
-  border-color: var(--color-red, #ff0000);
-  background: rgba(255, 0, 0, 0.05);
+  border-color: rgba(220, 220, 220, 0.3);
+  background: rgba(255, 255, 255, 0.03);
+  color: #dcdcdc;
 }
 
 .previewContainer {
   position: relative;
-  aspect-ratio: 1;
-  background: #111;
-  border: 1px solid #333;
+  aspect-ratio: 4 / 5;
+  max-height: 260px;
   overflow: hidden;
+  border: 1px solid rgba(220, 220, 220, 0.08);
+  background: #1a1a1a;
 }
 
 .preview {
@@ -43,38 +54,35 @@
 
 .previewOverlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  inset: 0;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
   align-items: center;
-  gap: 1rem;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.72);
   opacity: 0;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.2s;
 }
 
 .previewContainer:hover .previewOverlay {
   opacity: 1;
 }
 
-.changeBtn, .removeBtn {
-  background: white;
-  color: black;
-  border: none;
-  padding: 0.5rem 1rem;
-  font-family: var(--font-ibm-mono);
-  font-size: 0.75rem;
-  font-weight: 600;
+.changeBtn,
+.removeBtn {
+  padding: 5px 10px;
+  border: 1px solid rgba(220, 220, 220, 0.08);
+  background: #141414;
+  color: #dcdcdc;
   cursor: pointer;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
 }
 
 .removeBtn {
-  background: var(--color-red, #ff0000);
-  color: white;
+  color: #ff4444;
 }
 
 .hiddenInput {
@@ -82,35 +90,34 @@
 }
 
 .error {
-  color: var(--color-red, #ff0000);
-  font-size: 0.75rem;
-  margin-top: 0.5rem;
-  font-family: var(--font-ibm-mono);
+  min-height: 18px;
+  margin: 8px 0 0;
+  color: #ff4444;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 1px;
 }
 
 .urlInputGroup {
-  margin-top: 1rem;
+  margin-top: 12px;
 }
 
 .smallLabel {
-  display: block;
-  font-size: 0.65rem;
-  color: #666;
-  margin-bottom: 0.25rem;
-  font-family: var(--font-ibm-mono);
+  font-size: 10px;
 }
 
 .urlInput {
   width: 100%;
-  background: transparent;
-  border: 1px solid #333;
-  color: white;
-  padding: 0.5rem;
-  font-family: var(--font-ibm-mono);
-  font-size: 0.875rem;
+  padding: 10px 12px;
+  border: 1px solid rgba(220, 220, 220, 0.08);
+  border-radius: 2px;
+  background: #1a1a1a;
+  color: #dcdcdc;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 13px;
+  outline: none;
 }
 
 .urlInput:focus {
-  outline: none;
-  border-color: #666;
+  border-color: rgba(220, 220, 220, 0.3);
 }

@@ -1,85 +1,102 @@
-.container {
-  min-height: 100vh;
+.loginWrap {
   display: flex;
+  min-height: 100vh;
   align-items: center;
   justify-content: center;
-  background: #000;
-  color: #fff;
-  font-family: 'IBM Plex Mono', monospace;
+  background: #0d0d0d;
+  color: #dcdcdc;
+  font-family: "IBM Plex Mono", monospace;
 }
 
-.card {
-  width: 100%;
-  max-width: 400px;
-  padding: 40px;
-  background: #0a0a0a;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+.loginBox {
+  width: 340px;
   text-align: center;
 }
 
-.title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 32px;
-  letter-spacing: 0.2em;
+.loginLogo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.loginLogo img {
+  display: block;
+  max-width: 180px;
+  height: auto;
+  filter: none;
+  transition: filter 0.15s ease;
+}
+
+.loginLogoActive img {
+  filter: brightness(0) invert(1);
+}
+
+.loginSub {
   margin-bottom: 40px;
+  color: #888;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
 }
 
 .form {
   display: flex;
   flex-direction: column;
-  gap: 24px;
 }
 
-.inputGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  text-align: left;
-}
-
-.inputGroup label {
-  font-size: 10px;
-  letter-spacing: 0.15em;
-  color: rgba(255, 255, 255, 0.4);
-}
-
-.inputGroup input {
-  background: #111;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 12px 16px;
+.passwordInput {
+  width: 100%;
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  border: 1px solid rgba(220, 220, 220, 0.08);
+  border-radius: 2px;
+  background: #1a1a1a;
   color: #fff;
-  font-size: 14px;
+  caret-color: #fff;
+  font: inherit;
+  font-size: 13px;
+  letter-spacing: 4px;
   outline: none;
-  transition: border-color 0.2s;
+  text-align: center;
 }
 
-.inputGroup input:focus {
-  border-color: #b60000;
+.passwordInput::placeholder {
+  color: #888;
+  opacity: 1;
 }
 
-.error {
-  color: #ff4444;
-  font-size: 12px;
-  letter-spacing: 0.05em;
+.passwordInput:focus {
+  border-color: rgba(220, 220, 220, 0.3);
 }
 
 .button {
+  width: 100%;
+  padding: 12px 32px;
+  border: 0;
   background: #b60000;
   color: #fff;
-  border: none;
-  padding: 14px;
-  font-size: 12px;
-  letter-spacing: 0.2em;
-  font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  transition: opacity 0.2s;
 }
 
 .button:hover:not(:disabled) {
-  background: #8a0000;
+  opacity: 0.8;
 }
 
 .button:disabled {
-  opacity: 0.5;
   cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.error {
+  min-height: 20px;
+  margin-top: 12px;
+  color: #ff4444;
+  font-size: 11px;
+  letter-spacing: 1px;
 }

@@ -5,6 +5,16 @@ import fs from 'fs';
 const DB_PATH = path.join(__dirname, '../../sacristy/backend/events.db');
 const UPLOADS_DIR = path.join(__dirname, '../../sacristy/backend/uploads');
 
+interface LegacyEventMedia {
+  title: string;
+  posterUrl?: string | null;
+}
+
+interface LegacyResidentMedia {
+  name: string;
+  photo?: string | null;
+}
+
 async function audit() {
   if (!fs.existsSync(DB_PATH)) {
     console.error('Legacy database not found');
@@ -12,8 +22,8 @@ async function audit() {
   }
 
   const db = sqlite3(DB_PATH);
-  const events = db.prepare('SELECT title, posterUrl FROM events').all() as any[];
-  const residents = db.prepare('SELECT name, photo FROM residents').all() as any[];
+  const events = db.prepare('SELECT title, posterUrl FROM events').all() as LegacyEventMedia[];
+  const residents = db.prepare('SELECT name, photo FROM residents').all() as LegacyResidentMedia[];
 
   console.log('--- MEDIA AUDIT ---');
   

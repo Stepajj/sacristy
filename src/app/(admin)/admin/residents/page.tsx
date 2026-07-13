@@ -1,50 +1,38 @@
 export const dynamic = "force-dynamic";
 
-import { getResidents } from "@/services/resident.service";
-import Link from "next/link";
-import styles from "../events/Events.module.css";
-import Image from "next/image";
+import { getResidentsAdmin } from "@/services/resident.service";
+import AdminResidentsClient, { AdminResidentRow } from "./AdminResidentsClient";
+
+function serializeResident(resident: {
+  id: number;
+  slug: string;
+  name: string;
+  bio?: string | null;
+  photo?: string | null;
+  photoFull?: string | null;
+  videoUrl?: string | null;
+  instagramUrl?: string | null;
+  soundcloudUrl?: string | null;
+  raUrl?: string | null;
+  soundcloudWidgetUrl?: string | null;
+}): AdminResidentRow {
+  return {
+    id: resident.id,
+    slug: resident.slug,
+    name: resident.name,
+    bio: resident.bio || null,
+    photo: resident.photo || null,
+    photoFull: resident.photoFull || null,
+    videoUrl: resident.videoUrl || null,
+    instagramUrl: resident.instagramUrl || null,
+    soundcloudUrl: resident.soundcloudUrl || null,
+    raUrl: resident.raUrl || null,
+    soundcloudWidgetUrl: resident.soundcloudWidgetUrl || null,
+  };
+}
 
 export default async function AdminResidentsPage() {
-  const residents = await getResidents();
+  const residents = await getResidentsAdmin();
 
-  return (
-    <div>
-      <div className={styles.header}>
-        <h1 className={styles.title}>Residents</h1>
-        <Link href="/admin/residents/new" className={styles.createBtn}>+ NEW RESIDENT</Link>
-      </div>
-
-      <div className={styles.tableContainer}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>PHOTO</th>
-              <th>NAME</th>
-              <th>SLUG</th>
-              <th>ACTIONS</th>
-            </tr>
-          </thead>
-          <tbody>
-            {residents.map((res) => (
-              <tr key={res.id}>
-                <td style={{ width: '80px' }}>
-                  {res.photo ? (
-                    <Image src={res.photo} alt={res.name} width={40} height={50} style={{ objectFit: 'cover' }} />
-                  ) : (
-                    <div style={{ width: 40, height: 50, background: '#111' }} />
-                  )}
-                </td>
-                <td style={{ fontWeight: 600 }}>{res.name}</td>
-                <td className={styles.slug}>/{res.slug}</td>
-                <td className={styles.actionsCell}>
-                  <Link href={`/admin/residents/${res.id}`}>Edit</Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
+  return <AdminResidentsClient initialResidents={residents.map(serializeResident)} />;
 }

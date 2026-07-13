@@ -11,6 +11,35 @@ interface EventFormProps {
   residents: Resident[];
 }
 
+type LineupFormItem = {
+  residentId: number | "";
+  djName: string;
+  djInstagram: string;
+  sortOrder: number;
+};
+
+function formatDateTimeLocal(value?: Date | string | null) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  const pad = (part: number) => String(part).padStart(2, "0");
+
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+function getApiError(result: unknown) {
+  const data = result as { details?: { fieldErrors?: Record<string, string[]> }; error?: string };
+  const fieldErrors = data?.details?.fieldErrors;
+  if (fieldErrors) {
+    const messages = Object.entries(fieldErrors)
+      .flatMap(([field, errors]) => (errors as string[]).map((message) => `${field}: ${message}`));
+
+    if (messages.length) return messages.join(" ");
+  }
+
+  return data?.error || "Failed to save event";
+}
+
 export default function EventForm({ initialData, residents }: EventFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -20,18 +49,20 @@ export default function EventForm({ initialData, residents }: EventFormProps) {
     title: initialData?.title || "",
     displayTitle: initialData?.displayTitle || "",
     slug: initialData?.slug || "",
-    eventDate: initialData?.eventDate ? new Date(initialData.eventDate).toISOString().split('T')[0] : "",
+    eventDate: formatDateTimeLocal(initialData?.eventDate),
     location: initialData?.location || "",
+    mapsLink: initialData?.mapsLink || "",
+    racoLink: initialData?.racoLink || "",
     posterUrl: initialData?.posterUrl || "",
     ticketLink: initialData?.ticketLink || "",
     description: initialData?.description || "",
-    isPublished: initialData?.isPublished ?? false,
-    lineup: initialData?.lineup?.map(item => ({
+    isPublished: initialData?.isPublished ?? true,
+    lineup: (initialData?.lineup?.map(item => ({
       residentId: item.residentId || "",
       djName: item.djName || "",
       djInstagram: item.djInstagram || "",
       sortOrder: item.sortOrder
-    })) || []
+    })) || []) as LineupFormItem[]
   });
 
   const addLineupItem = () => {
@@ -46,7 +77,7 @@ export default function EventForm({ initialData, residents }: EventFormProps) {
     setFormData({ ...formData, lineup: newLineup });
   };
 
-  const updateLineupItem = (index: number, field: string, value: any) => {
+  const updateLineupItem = <Key extends keyof LineupFormItem>(index: number, field: Key, value: LineupFormItem[Key]) => {
     const newLineup = [...formData.lineup];
     newLineup[index] = { ...newLineup[index], [field]: value };
     
@@ -80,7 +111,7 @@ export default function EventForm({ initialData, residents }: EventFormProps) {
         router.push("/admin/events");
         router.refresh();
       } else {
-        setError(result.error || "Failed to save event");
+        setError(getApiError(result));
       }
     } catch (err) {
       setError("An error occurred");
@@ -116,16 +147,24 @@ export default function EventForm({ initialData, residents }: EventFormProps) {
             <input value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} required />
           </div>
           <div className={styles.inputGroup}>
+            <label>DISPLAY TITLE</label>
+            <input value={formData.displayTitle} onChange={e => setFormData({...formData, displayTitle: e.target.value})} />
+          </div>
+          <div className={styles.inputGroup}>
             <label>SLUG</label>
             <input value={formData.slug} onChange={e => setFormData({...formData, slug: e.target.value})} required />
           </div>
           <div className={styles.inputGroup}>
-            <label>DATE</label>
-            <input type="date" value={formData.eventDate} onChange={e => setFormData({...formData, eventDate: e.target.value})} required />
+            <label>DATE & TIME</label>
+            <input type="datetime-local" value={formData.eventDate} onChange={e => setFormData({...formData, eventDate: e.target.value})} required />
           </div>
           <div className={styles.inputGroup}>
             <label>LOCATION</label>
             <input value={formData.location} onChange={e => setFormData({...formData, location: e.target.value})} />
+          </div>
+          <div className={styles.inputGroup}>
+            <label>MAPS LINK</label>
+            <input value={formData.mapsLink} onChange={e => setFormData({...formData, mapsLink: e.target.value})} />
           </div>
         </div>
 
@@ -139,6 +178,14 @@ export default function EventForm({ initialData, residents }: EventFormProps) {
           <div className={styles.inputGroup}>
             <label>TICKET LINK</label>
             <input value={formData.ticketLink} onChange={e => setFormData({...formData, ticketLink: e.target.value})} />
+          </div>
+          <div className={styles.inputGroup}>
+            <label>RA LINK</label>
+            <input value={formData.racoLink} onChange={e => setFormData({...formData, racoLink: e.target.value})} />
+          </div>
+          <div className={styles.inputGroup}>
+            <label>DESCRIPTION</label>
+            <textarea rows={5} value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} />
           </div>
           <div className={styles.checkboxGroup}>
             <input type="checkbox" checked={formData.isPublished} onChange={e => setFormData({...formData, isPublished: e.target.checked})} id="isPublished" />

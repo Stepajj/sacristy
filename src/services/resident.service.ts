@@ -5,6 +5,19 @@ import { deleteFile } from '@/lib/storage/upload';
 import { unstable_cache } from 'next/cache';
 import { CACHE_TAGS } from '@/lib/cache-tags';
 
+interface ResidentWriteData {
+  slug?: string;
+  name?: string;
+  bio?: string;
+  photo?: string;
+  photoFull?: string;
+  videoUrl?: string;
+  instagramUrl?: string;
+  soundcloudUrl?: string;
+  raUrl?: string;
+  soundcloudWidgetUrl?: string;
+}
+
 /**
  * Returns all residents sorted by name ascending.
  */
@@ -64,7 +77,15 @@ export const getResidentsCount = async (): Promise<number> => {
   return prisma.resident.count();
 };
 
-export const createResident = async (data: any): Promise<Resident> => {
+export const getResidentsAdmin = async (): Promise<Resident[]> => {
+  return prisma.resident.findMany({
+    orderBy: {
+      createdAt: 'asc',
+    },
+  }) as unknown as Promise<Resident[]>;
+};
+
+export const createResident = async (data: ResidentWriteData & { slug: string; name: string }): Promise<Resident> => {
   const resident = await prisma.resident.create({
     data,
   });
@@ -73,7 +94,7 @@ export const createResident = async (data: any): Promise<Resident> => {
   return resident as unknown as Resident;
 };
 
-export const updateResident = async (id: number, data: any): Promise<Resident> => {
+export const updateResident = async (id: number, data: ResidentWriteData): Promise<Resident> => {
   // Get old resident to check for photo change
   const oldResident = await prisma.resident.findUnique({ where: { id } });
   

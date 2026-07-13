@@ -7,7 +7,48 @@ const prisma = new PrismaClient();
 
 const LEGACY_DB_PATH = path.join(__dirname, '../../sacristy/backend/events.db');
 
-const parseDate = (value: any): Date | undefined => {
+interface LegacyResident {
+  slug: string;
+  name: string;
+  bio?: string | null;
+  photo?: string | null;
+  photoFull?: string | null;
+  videoUrl?: string | null;
+  instagramUrl?: string | null;
+  soundcloudUrl?: string | null;
+  raUrl?: string | null;
+  soundcloudWidgetUrl?: string | null;
+  createdAt?: string | null;
+}
+
+interface LegacyEvent {
+  id: number;
+  slug: string;
+  title: string;
+  displayTitle?: string | null;
+  eventDate?: string | null;
+  location?: string | null;
+  mapsLink?: string | null;
+  coords?: string | null;
+  posterUrl?: string | null;
+  ticketLink?: string | null;
+  racoLink?: string | null;
+  description?: string | null;
+  createdAt?: string | null;
+}
+
+interface LegacyLineupItem {
+  residentSlug?: string | null;
+  djName?: string | null;
+  djInstagram?: string | null;
+  sortOrder?: number | null;
+}
+
+interface CountRow {
+  n: number;
+}
+
+const parseDate = (value: unknown): Date | undefined => {
   if (!value) return undefined;
   const date = new Date(value);
   return isNaN(date.getTime()) ? undefined : date;
@@ -34,7 +75,7 @@ async function main() {
 
   // 1. Migrate Residents
   console.log('Migrating residents...');
-  const legacyResidents = db.prepare('SELECT * FROM residents').all() as any[];
+  const legacyResidents = db.prepare('SELECT * FROM residents').all() as LegacyResident[];
   
   for (const res of legacyResidents) {
     await prisma.resident.upsert({
@@ -70,7 +111,7 @@ async function main() {
 
   // 2. Migrate Events
   console.log('Migrating events...');
-  const legacyEvents = db.prepare('SELECT * FROM events').all() as any[];
+  const legacyEvents = db.prepare('SELECT * FROM events').all() as LegacyEvent[];
   const residents = await prisma.resident.findMany();
   const residentsMap = new Map(residents.map(r => [r.slug, r.id]));
   const residentNameMap = new Map(residents.map(r => [r.name.toLowerCase(), r]));
@@ -80,7 +121,7 @@ async function main() {
     try {
       eventDate = new Date(ev.eventDate);
       if (isNaN(eventDate.getTime())) throw new Error('Invalid date');
-    } catch (e) {
+    } catch {
       eventDate = new Date();
     }
 
@@ -117,7 +158,7 @@ async function main() {
       },
     });
 
-    const legacyLineup = db.prepare('SELECT * FROM event_lineup WHERE eventId = ?').all(ev.id) as any[];
+    const legacyLineup = db.prepare('SELECT * FROM event_lineup WHERE eventId = ?').all(ev.id) as LegacyLineupItem[];
     
     // Always refresh lineup to ensure correct residentId links
     await prisma.lineupItem.deleteMany({ where: { eventId: newEvent.id } });
@@ -144,7 +185,7 @@ async function main() {
   const finalEventsCount = await prisma.event.count();
   const finalResidentsCount = await prisma.resident.count();
   const finalLineupCount = await prisma.lineupItem.count();
-  const legacyLineupCount = db.prepare('SELECT COUNT(*) as n FROM event_lineup').get() as any;
+  const legacyLineupCount = db.prepare('SELECT COUNT(*) as n FROM event_lineup').get() as CountRow;
 
   console.log('\n--- MIGRATION SUMMARY ---');
   console.log(`Events: ${finalEventsCount} (Legacy: ${legacyEvents.length})`);

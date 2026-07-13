@@ -4,6 +4,10 @@ import { EventSchema } from '@/lib/validation/event.schema';
 import { revalidateTag } from 'next/cache';
 import { CACHE_TAGS } from '@/lib/cache-tags';
 
+function getErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : 'Unexpected error';
+}
+
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json();
@@ -24,9 +28,9 @@ export async function POST(request: NextRequest) {
     revalidateTag(CACHE_TAGS.events, { expire: 0 });
 
     return NextResponse.json({ success: true, data: event });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[API][Admin][Events] Create error:', error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: getErrorMessage(error) }, { status: 500 });
   }
 }
 
@@ -55,9 +59,9 @@ export async function PATCH(request: NextRequest) {
     revalidateTag(CACHE_TAGS.events, { expire: 0 });
 
     return NextResponse.json({ success: true, data: event });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[API][Admin][Events] Update error:', error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: getErrorMessage(error) }, { status: 500 });
   }
 }
 
@@ -74,8 +78,8 @@ export async function DELETE(request: NextRequest) {
     revalidateTag(CACHE_TAGS.events, { expire: 0 });
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[API][Admin][Events] Delete error:', error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: getErrorMessage(error) }, { status: 500 });
   }
 }

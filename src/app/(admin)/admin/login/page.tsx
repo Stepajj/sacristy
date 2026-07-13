@@ -4,7 +4,6 @@ import { useState } from "react";
 import styles from "./Login.module.css";
 
 export default function AdminLoginPage() {
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -17,7 +16,7 @@ export default function AdminLoginPage() {
     try {
       const res = await fetch("/api/admin/auth/login", {
         method: "POST",
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ password }),
         headers: { "Content-Type": "application/json" },
         credentials: "same-origin",
       });
@@ -25,11 +24,11 @@ export default function AdminLoginPage() {
       const result = await res.json();
 
       if (result.success) {
-        window.location.assign("/admin");
+        window.location.assign("/admin/events");
         return;
-      } else {
-        setError(result.error || "Invalid credentials");
       }
+
+      setError(result.error || "Wrong password");
     } catch (err) {
       setError("An error occurred. Please try again.");
     } finally {
@@ -38,37 +37,30 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className={styles.container}>
-      <div className={styles.card}>
-        <h1 className={styles.title}>SACRISTY ADMIN</h1>
+    <div className={styles.loginWrap}>
+      <div className={styles.loginBox}>
+        <div className={`${styles.loginLogo} ${password.length > 0 ? styles.loginLogoActive : ""}`}>
+          <img src="/logo.webp" alt="SACRISTY" />
+        </div>
+        <div className={styles.loginSub}>Admin Panel</div>
         <form onSubmit={handleSubmit} className={styles.form}>
-          <div className={styles.inputGroup}>
-            <label htmlFor="email">EMAIL</label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@sacristy.com"
-              required
-              autoFocus
-            />
-          </div>
-          <div className={styles.inputGroup}>
-            <label htmlFor="password">PASSWORD</label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              required
-            />
-          </div>
-          {error && <p className={styles.error}>{error}</p>}
+          <input
+            type="password"
+            id="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder={"\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"}
+            required
+            autoFocus
+            autoComplete="current-password"
+            className={styles.passwordInput}
+          />
           <button type="submit" className={styles.button} disabled={loading}>
-            {loading ? "AUTHENTICATING..." : "ENTER"}
+            {loading ? "Authenticating..." : "Enter"}
           </button>
+          <div className={styles.error} role="alert" aria-live="polite">
+            {error}
+          </div>
         </form>
       </div>
     </div>

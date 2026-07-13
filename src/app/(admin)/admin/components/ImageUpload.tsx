@@ -18,14 +18,8 @@ export default function ImageUpload({ value, onChange, label }: ImageUploadProps
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Basic validation
     if (!file.type.startsWith("image/")) {
       setError("Please select an image file");
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      setError("Image must be smaller than 5MB");
       return;
     }
 

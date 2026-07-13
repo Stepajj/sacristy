@@ -5,6 +5,30 @@ import { deleteFile } from '@/lib/storage/upload';
 import { unstable_cache } from 'next/cache';
 import { CACHE_TAGS } from '@/lib/cache-tags';
 
+interface LineupInput {
+  residentId?: number | string | null;
+  residentSlug?: string | null;
+  djName?: string | null;
+  djInstagram?: string | null;
+  sortOrder?: number | null;
+}
+
+interface EventWriteData {
+  slug?: string;
+  title?: string;
+  displayTitle?: string;
+  eventDate?: Date;
+  location?: string;
+  mapsLink?: string;
+  coords?: string;
+  posterUrl?: string;
+  ticketLink?: string;
+  racoLink?: string;
+  description?: string;
+  isPublished?: boolean;
+  lineup?: LineupInput[];
+}
+
 /**
  * Returns a unique list of artists who have played at events, grouped by year.
  */
@@ -143,7 +167,7 @@ export const getAllEventsAdmin = async (): Promise<Event[]> => {
   }) as unknown as Promise<Event[]>;
 };
 
-const buildLineupCreateData = async (lineup: any[] = []) => {
+const buildLineupCreateData = async (lineup: LineupInput[] = []) => {
   const items = [];
 
   for (const item of lineup) {
@@ -187,7 +211,7 @@ const buildLineupCreateData = async (lineup: any[] = []) => {
   return items;
 };
 
-export const createEvent = async (data: any): Promise<Event> => {
+export const createEvent = async (data: EventWriteData & { slug: string; title: string; eventDate: Date }): Promise<Event> => {
   const { lineup, ...eventData } = data;
   const lineupData = await buildLineupCreateData(lineup || []);
   
@@ -204,7 +228,7 @@ export const createEvent = async (data: any): Promise<Event> => {
   return event as unknown as Event;
 };
 
-export const updateEvent = async (id: number, data: any): Promise<Event> => {
+export const updateEvent = async (id: number, data: EventWriteData): Promise<Event> => {
   const { lineup, ...eventData } = data;
   const lineupData = await buildLineupCreateData(lineup || []);
 

@@ -1,68 +1,190 @@
 .container {
+  --admin-red: #b60000;
+  --admin-black: #0d0d0d;
+  --admin-black-2: #141414;
+  --admin-black-3: #1a1a1a;
+  --admin-white: #dcdcdc;
+  --admin-soft: #888;
+  --admin-line: rgba(220, 220, 220, 0.08);
+  --admin-green: #00b050;
+  --admin-gold: #b8860b;
+
   display: flex;
-  height: 100vh;
   min-height: 100vh;
-  overflow: hidden;
-  background: #000;
-  color: #fff;
-  font-family: 'IBM Plex Mono', monospace;
+  background: var(--admin-black);
+  color: var(--admin-white);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 13px;
+}
+
+:global(html.admin-scroll),
+:global(body.admin-scroll) {
+  height: auto;
+  min-height: 100%;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+:global(body.admin-scroll) {
+  padding-bottom: 0 !important;
 }
 
 .sidebar {
-  width: 240px;
-  flex: 0 0 240px;
-  height: 100vh;
-  background: #0a0a0a;
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 100;
   display: flex;
+  width: 200px;
+  height: 100vh;
   flex-direction: column;
+  background: var(--admin-black-2);
+  border-right: 1px solid var(--admin-line);
 }
 
-.sidebarHeader {
-  padding: 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+.sidebarLogo {
+  padding: 24px 20px 20px;
+  border-bottom: 1px solid var(--admin-line);
 }
 
-.logo {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 20px;
-  letter-spacing: 0.1em;
-  color: #fff;
+.sidebarLogo a {
+  display: block;
+}
+
+.sidebarLogo img {
+  display: block;
+  width: 140px;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+  filter: brightness(0) invert(1);
 }
 
 .nav {
-  display: flex;
-  flex-direction: column;
-  padding: 24px 0;
   flex: 1;
+  padding: 16px 0;
 }
 
-.nav a {
-  padding: 12px 24px;
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.6);
-  transition: all 0.2s;
+.navItem,
+.activeNavItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  border-left: 2px solid transparent;
+  color: var(--admin-soft);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 
-.nav a:hover {
-  background: rgba(255, 255, 255, 0.05);
+.navItem:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--admin-white);
+}
+
+.activeNavItem {
+  background: rgba(182, 0, 0, 0.12);
+  border-left-color: var(--admin-red);
   color: #fff;
 }
 
-.navSpacer {
-  flex: 1;
+.navItem svg,
+.activeNavItem svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  opacity: 0.7;
 }
 
-.viewSite {
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  margin-top: 12px;
-  opacity: 0.4;
+.clock {
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--admin-line);
+  color: var(--admin-soft);
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  line-height: 1.55;
+  text-align: center;
+  white-space: pre-line;
+}
+
+.sidebarBottom {
+  padding: 16px 20px;
+  border-top: 1px solid var(--admin-line);
+}
+
+.sidebarUser {
+  margin-bottom: 10px;
+  color: var(--admin-soft);
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.logoutButton {
+  padding: 8px 0;
+  border: 0;
+  background: none;
+  color: var(--admin-soft);
+  cursor: pointer;
+  font: inherit;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+
+.logoutButton:hover {
+  color: var(--admin-red);
 }
 
 .main {
-  flex: 1;
-  min-height: 0;
-  height: 100vh;
-  padding: 40px;
-  overflow-y: auto;
+  width: calc(100% - 200px);
+  min-height: 100vh;
+  margin-left: 200px;
+  padding: 32px;
+  overflow: visible;
+}
+
+@media (max-width: 760px) {
+  .container {
+    display: block;
+  }
+
+  .sidebar {
+    position: static;
+    width: 100%;
+    height: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--admin-line);
+  }
+
+  .nav {
+    display: flex;
+    overflow-x: auto;
+    padding: 0;
+  }
+
+  .navItem,
+  .activeNavItem {
+    flex: 0 0 auto;
+    border-left: 0;
+    border-bottom: 2px solid transparent;
+  }
+
+  .activeNavItem {
+    border-bottom-color: var(--admin-red);
+  }
+
+  .clock,
+  .sidebarBottom {
+    display: none;
+  }
+
+  .main {
+    width: 100%;
+    margin-left: 0;
+    padding: 24px 16px;
+  }
 }

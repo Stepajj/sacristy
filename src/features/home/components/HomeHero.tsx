@@ -102,35 +102,10 @@ export const HomeHero = ({
   const eventPoster = activeEvent?.posterUrl || "/og-image.jpg";
 
   useEffect(() => {
+    let stateFrame: number | null = null;
     let frame: number | null = null;
     let activationFallback: number | null = null;
     let timer: number | null = null;
-
-    setResidentPhotoState((state) => {
-      if (!activeResident) {
-        return {
-          current: null,
-          previous: state.current,
-          sequence: state.sequence,
-          currentActive: false,
-          previousActive: Boolean(state.current),
-          currentSettled: false,
-        };
-      }
-
-      if (state.current?.id === activeResident.id) {
-        return { ...state, current: activeResident };
-      }
-
-      return {
-        current: activeResident,
-        previous: state.current,
-        sequence: state.sequence + 1,
-        currentActive: Boolean(state.current),
-        previousActive: Boolean(state.current),
-        currentSettled: Boolean(state.current),
-      };
-    });
 
     const activateResidentLayers = () => {
       setResidentPhotoState((state) => {
@@ -149,23 +124,52 @@ export const HomeHero = ({
       });
     };
 
-    frame = requestAnimationFrame(activateResidentLayers);
-    activationFallback = window.setTimeout(activateResidentLayers, 20);
+    stateFrame = requestAnimationFrame(() => {
+      setResidentPhotoState((state) => {
+        if (!activeResident) {
+          return {
+            current: null,
+            previous: state.current,
+            sequence: state.sequence,
+            currentActive: false,
+            previousActive: Boolean(state.current),
+            currentSettled: false,
+          };
+        }
 
-    timer = window.setTimeout(() => {
-      setResidentPhotoState((state) =>
-        !activeResident || state.current?.id === activeResident.id
-          ? {
-              ...state,
-              previous: null,
-              previousActive: false,
-              currentSettled: Boolean(state.current),
-            }
-          : state
-      );
-    }, 520);
+        if (state.current?.id === activeResident.id) {
+          return { ...state, current: activeResident };
+        }
+
+        return {
+          current: activeResident,
+          previous: state.current,
+          sequence: state.sequence + 1,
+          currentActive: Boolean(state.current),
+          previousActive: Boolean(state.current),
+          currentSettled: Boolean(state.current),
+        };
+      });
+
+      frame = requestAnimationFrame(activateResidentLayers);
+      activationFallback = window.setTimeout(activateResidentLayers, 20);
+
+      timer = window.setTimeout(() => {
+        setResidentPhotoState((state) =>
+          !activeResident || state.current?.id === activeResident.id
+            ? {
+                ...state,
+                previous: null,
+                previousActive: false,
+                currentSettled: Boolean(state.current),
+              }
+            : state
+        );
+      }, 520);
+    });
 
     return () => {
+      if (stateFrame !== null) cancelAnimationFrame(stateFrame);
       if (frame !== null) cancelAnimationFrame(frame);
       if (activationFallback !== null) window.clearTimeout(activationFallback);
       if (timer !== null) window.clearTimeout(timer);
@@ -173,35 +177,10 @@ export const HomeHero = ({
   }, [activeResident]);
 
   useEffect(() => {
+    let stateFrame: number | null = null;
     let frame: number | null = null;
     let activationFallback: number | null = null;
     let timer: number | null = null;
-
-    setEventPhotoState((state) => {
-      if (!activeEvent) {
-        return {
-          current: null,
-          previous: state.current,
-          sequence: state.sequence,
-          currentActive: false,
-          previousActive: Boolean(state.current),
-          currentSettled: false,
-        };
-      }
-
-      if (state.current?.id === activeEvent.id) {
-        return { ...state, current: activeEvent };
-      }
-
-      return {
-        current: activeEvent,
-        previous: state.current,
-        sequence: state.sequence + 1,
-        currentActive: false,
-        previousActive: Boolean(state.current),
-        currentSettled: false,
-      };
-    });
 
     const activateEventLayers = () => {
       setEventPhotoState((state) => {
@@ -220,23 +199,52 @@ export const HomeHero = ({
       });
     };
 
-    frame = requestAnimationFrame(activateEventLayers);
-    activationFallback = window.setTimeout(activateEventLayers, 20);
+    stateFrame = requestAnimationFrame(() => {
+      setEventPhotoState((state) => {
+        if (!activeEvent) {
+          return {
+            current: null,
+            previous: state.current,
+            sequence: state.sequence,
+            currentActive: false,
+            previousActive: Boolean(state.current),
+            currentSettled: false,
+          };
+        }
 
-    timer = window.setTimeout(() => {
-      setEventPhotoState((state) =>
-        !activeEvent || state.current?.id === activeEvent.id
-          ? {
-              ...state,
-              previous: null,
-              previousActive: false,
-              currentSettled: false,
-            }
-          : state
-      );
-    }, 520);
+        if (state.current?.id === activeEvent.id) {
+          return { ...state, current: activeEvent };
+        }
+
+        return {
+          current: activeEvent,
+          previous: state.current,
+          sequence: state.sequence + 1,
+          currentActive: false,
+          previousActive: Boolean(state.current),
+          currentSettled: false,
+        };
+      });
+
+      frame = requestAnimationFrame(activateEventLayers);
+      activationFallback = window.setTimeout(activateEventLayers, 20);
+
+      timer = window.setTimeout(() => {
+        setEventPhotoState((state) =>
+          !activeEvent || state.current?.id === activeEvent.id
+            ? {
+                ...state,
+                previous: null,
+                previousActive: false,
+                currentSettled: false,
+              }
+            : state
+        );
+      }, 520);
+    });
 
     return () => {
+      if (stateFrame !== null) cancelAnimationFrame(stateFrame);
       if (frame !== null) cancelAnimationFrame(frame);
       if (activationFallback !== null) window.clearTimeout(activationFallback);
       if (timer !== null) window.clearTimeout(timer);
